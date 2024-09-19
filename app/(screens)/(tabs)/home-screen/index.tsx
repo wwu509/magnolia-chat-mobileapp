@@ -18,6 +18,8 @@ import { useNavigation } from "@react-navigation/native";
 import homeScreenStyles from "@/app/styles/home-style";
 import { TEST_IDS } from "@/app/constants/test-ids/home-screen";
 import CustomText from "@/app/components/custom-text";
+import { messages } from "../../chat-listing-screnn";
+import MessageItem from "@/app/components/chat-listing/message-item";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -65,26 +67,31 @@ const Home = () => {
       />
       <View className="flex-1 justify-between">
         <WelcomeSection />
-        <View className="flex-1 ">
-          <View className="flex-row justify-between px-5 pt-5 ">
-            <View className="w-[47%] bg-blue-600 rounded-lg p-4 justify-center shadow-lg">
-              <Text className="text-white text-base text-center">
-                Total Chats
-              </Text>
-              <Text className="text-white font-medium text-base text-center">
-                {chatData?.totalChats || 8}
-              </Text>
-            </View>
-            <View className="w-[47%] bg-green-600 rounded-lg p-4 justify-center shadow-lg">
-              <Text className="text-white  text-base text-center">
-                Important
-              </Text>
-              <Text className="text-white font-bold text-base text-center">
-                {chatData?.unreadChats || 7}
-              </Text>
-            </View>
+        <View className="flex-row justify-between px-5 pt-5 ">
+          <View className="w-[47%] bg-blue-600 rounded-lg p-4 justify-center shadow-lg">
+            <Text className="text-white text-base text-center">
+              Total Chats
+            </Text>
+            <Text className="text-white font-medium text-base text-center">
+              {chatData?.totalChats || 8}
+            </Text>
+          </View>
+          <View className="w-[47%] bg-green-600 rounded-lg p-4 justify-center shadow-lg">
+            <Text className="text-white  text-base text-center">Important</Text>
+            <Text className="text-white font-bold text-base text-center">
+              {chatData?.unreadChats || 7}
+            </Text>
           </View>
         </View>
+        <Text className="text-lg pt-5 px-5 font-bold ">
+          Recent Chats Listing
+        </Text>
+        <ScrollView className="px-5">
+          {/* {chatData?.chats.slice(0, 2).map((chat, index) => ( */}
+          {messages.slice(0, 2).map((message, index) => (
+            <MessageItem key={index} {...message} />
+          ))}
+        </ScrollView>
 
         <TouchableOpacity
           onPress={handleStartChat}
