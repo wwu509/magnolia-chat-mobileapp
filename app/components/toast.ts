@@ -1,5 +1,4 @@
 import Toast from "react-native-root-toast";
-import { translate } from "@/app/utils/i18n";
 
 type ToastOptions = {
     duration?: number;
@@ -13,7 +12,7 @@ type ToastOptions = {
 }
 
 const showToast = (message: string, options: ToastOptions = {}): void => {
-    const toast = Toast.show(translate(message), {
+    const toast = Toast.show(message, {
         duration: Toast.durations.LONG,
         position: 100,
         animation: true,

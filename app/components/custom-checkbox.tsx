@@ -10,11 +10,12 @@ import formFieldStyles from '@/app/styles/form-field-style';
 type CustomCheckboxProps = {
   control?: Control<any>;
   name: string;
-  label: string;
+  label?: string;
   errors?: FieldErrors<any>;
   labelID?: string;
   errorID?: string;
   checkBoxID?: string;
+  onSelection?: (value?: boolean) => void;
 };
 
 const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
@@ -25,6 +26,7 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
   labelID,
   errorID,
   checkBoxID,
+  onSelection = () => {},
 }) => {
   const {activeTheme} = useTheme();
 
@@ -40,7 +42,10 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
               testID={checkBoxID}
               accessibilityLabel={checkBoxID}
               value={value}
-              onValueChange={onChange}
+              onValueChange={onChangeValue => {
+                onSelection(onChangeValue);
+                onChange(onChangeValue);
+              }}
               color={
                 value
                   ? activeTheme.checkboxChecked
@@ -49,11 +54,13 @@ const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
             />
           )}
         />
-        <CustomText
-          testID={labelID}
-          title={label}
-          classname={`${checkboxStyles.checkboxText} ${activeTheme.checkboxText}`}
-        />
+        {label && (
+          <CustomText
+            testID={labelID}
+            title={label}
+            classname={`${checkboxStyles.checkboxText} ${activeTheme.checkboxText}`}
+          />
+        )}
       </View>
       {errors && errors?.[name] && (
         <CustomText

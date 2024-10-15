@@ -1,6 +1,6 @@
 const settingStyles = {
-  container: "flex-1 items-center justify-center",
-  text: "text-base",
+  container: "flex-1 items-start",
+  text: "text-lg",
 };
 
 export default settingStyles;

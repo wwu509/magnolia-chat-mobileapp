@@ -1,0 +1,88 @@
+diff --git a/node_modules/react-native-element-dropdown/lib/typescript/components/Dropdown/model.d.ts b/node_modules/react-native-element-dropdown/lib/typescript/components/Dropdown/model.d.ts
+index c188d58..6d4082e 100644
+--- a/node_modules/react-native-element-dropdown/lib/typescript/components/Dropdown/model.d.ts
++++ b/node_modules/react-native-element-dropdown/lib/typescript/components/Dropdown/model.d.ts
+@@ -8,6 +8,7 @@ export interface DropdownProps<T> {
+     ref?: React.RefObject<IDropdownRef> | React.MutableRefObject<IDropdownRef> | null | undefined;
+     testID?: string;
+     itemTestIDField?: string;
++    showText?: boolean;
+     style?: StyleProp<ViewStyle>;
+     containerStyle?: StyleProp<ViewStyle>;
+     placeholderStyle?: StyleProp<TextStyle>;
+diff --git a/node_modules/react-native-element-dropdown/src/components/Dropdown/index.tsx b/node_modules/react-native-element-dropdown/src/components/Dropdown/index.tsx
+index db976f5..4c68fbc 100644
+--- a/node_modules/react-native-element-dropdown/src/components/Dropdown/index.tsx
++++ b/node_modules/react-native-element-dropdown/src/components/Dropdown/index.tsx
+@@ -61,6 +61,7 @@ const DropdownComponent: <T>(
+       iconStyle,
+       selectedTextProps = {},
+       data = [],
++      showText = true,
+       labelField,
+       valueField,
+       searchField,
+@@ -441,7 +442,11 @@ const DropdownComponent: <T>(
+           accessible={!!accessibilityLabel}
+           accessibilityLabel={accessibilityLabel}
+           onPress={showOrClose}
++          style={{
++            backgroundColor: 'blue',
++          }}
+         >
++          {showText ? 
+           <View style={styles.dropdown}>
+             {renderLeftIcon?.(visible)}
+             <Text
+@@ -469,6 +474,8 @@ const DropdownComponent: <T>(
+               />
+             )}
+           </View>
++          :
++          renderRightIcon?.(visible)}
+         </TouchableWithoutFeedback>
+       );
+     };
+diff --git a/node_modules/react-native-element-dropdown/src/components/Dropdown/model.ts b/node_modules/react-native-element-dropdown/src/components/Dropdown/model.ts
+index 0e029b2..8c88d64 100644
+--- a/node_modules/react-native-element-dropdown/src/components/Dropdown/model.ts
++++ b/node_modules/react-native-element-dropdown/src/components/Dropdown/model.ts
+@@ -14,12 +14,13 @@ export type IDropdownRef = {
+ 
+ export interface DropdownProps<T> {
+   ref?:
+-    | React.RefObject<IDropdownRef>
+-    | React.MutableRefObject<IDropdownRef>
+-    | null
+-    | undefined;
++  | React.RefObject<IDropdownRef>
++  | React.MutableRefObject<IDropdownRef>
++  | null
++  | undefined;
+   testID?: string;
+   itemTestIDField?: string;
++  showText?: boolean;
+   style?: StyleProp<ViewStyle>;
+   containerStyle?: StyleProp<ViewStyle>;
+   placeholderStyle?: StyleProp<TextStyle>;
+diff --git a/node_modules/react-native-element-dropdown/src/components/Dropdown/styles.ts b/node_modules/react-native-element-dropdown/src/components/Dropdown/styles.ts
+index 2c83bdd..22a287f 100644
+--- a/node_modules/react-native-element-dropdown/src/components/Dropdown/styles.ts
++++ b/node_modules/react-native-element-dropdown/src/components/Dropdown/styles.ts
+@@ -29,7 +29,6 @@ export const styles = StyleSheet.create({
+   },
+   dropdown: {
+     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
+-    justifyContent: 'space-between',
+     alignItems: 'center',
+   },
+   title: {
+@@ -44,7 +43,7 @@ export const styles = StyleSheet.create({
+     alignItems: 'center',
+   },
+   textItem: {
+-    flex: 1,
++    // flex: 1,
+     fontSize: 16,
+     writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+   },

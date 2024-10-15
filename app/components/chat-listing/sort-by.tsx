@@ -1,26 +1,74 @@
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import React from "react";
-import { View, Text } from "react-native";
+import React, {useState} from 'react';
+import {View, Text} from 'react-native';
+import {Root, Content, Trigger, Item, ItemTitle} from 'zeego/dropdown-menu';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
-const SortBy: React.FC = () => {
+type SortByProps = {
+  search: string;
+  handleSearch: (params: {filter: string; search: string}) => void;
+};
+
+const SortBy: React.FC<SortByProps> = ({handleSearch, search}) => {
+  const [value, setValue] = useState('All');
+
   return (
-    <View className="flex-row justify-between my-5 mx-5 ">
-      <View className="grow text-xs leading-none text-black text-opacity-70">
-        <Text className="font-bold">Sort by</Text>
+    <View className="flex-row justify-between mt-5 ml-2.5 w-full">
+      <View className="grow w-1/2">
+        <Text className="text-xs leading-none text-black text-opacity-70">
+          Sort by
+        </Text>
       </View>
-      <View className="flex-row items-center ">
-        <View className="self-stretch  my-auto">
-          <Text className="font-bold">Newest</Text>
-        </View>
-        <MaterialCommunityIcons
-          color={"blue"}
-          size={12}
-          style={{
-            marginHorizontal: 5,
-          }}
-          name={"arrow-down"}
-          onPress={() => {}}
-        />
+      <View className="flex-row justify-end w-1/2">
+        <Root>
+          <Trigger>
+            <View className="flex-row justify-center items-center">
+              <Text className="mr-1">{value}</Text>
+              <MaterialCommunityIcons
+                color="blue"
+                size={12}
+                name="arrow-down"
+              />
+            </View>
+          </Trigger>
+          <Content
+            placeholder={''}
+            onPointerEnterCapture={() => {}}
+            onPointerLeaveCapture={() => {}}>
+            <Item
+              key="all"
+              placeholder={''}
+              onSelect={() => {
+                setValue('All');
+                handleSearch({filter: 'all', search});
+              }}
+              onPointerEnterCapture={() => {}}
+              onPointerLeaveCapture={() => {}}>
+              <ItemTitle>All</ItemTitle>
+            </Item>
+            <Item
+              key="important"
+              placeholder={''}
+              onSelect={() => {
+                setValue('Important');
+                handleSearch({filter: 'important', search});
+              }}
+              onPointerEnterCapture={() => {}}
+              onPointerLeaveCapture={() => {}}>
+              <ItemTitle>Important</ItemTitle>
+            </Item>
+            <Item
+              key="unread"
+              placeholder={''}
+              onSelect={() => {
+                setValue('Unread');
+                handleSearch({filter: 'unread', search});
+              }}
+              onPointerEnterCapture={() => {}}
+              onPointerLeaveCapture={() => {}}>
+              <ItemTitle>Unread</ItemTitle>
+            </Item>
+          </Content>
+        </Root>
       </View>
     </View>
   );

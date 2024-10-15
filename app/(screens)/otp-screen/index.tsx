@@ -17,6 +17,7 @@ import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
 import {TEST_IDS} from '@/app/constants/test-ids/otp-screen';
 import {LOGIN_TYPES} from '@/app/constants';
 import BackSvg from '@/assets/svgs/arrow-left-svg';
+import AppCustomLogo from '@/app/components/app-custom-logo';
 
 type AuthResponse = {
   access_token: string;
@@ -132,9 +133,8 @@ const OTPScreen: React.FC = () => {
       </Pressable>
       <View className="w-full h-[60%] flex-col justify-between">
         <View className={`${otpScreenStyles.childContainer} mt-[40]`}>
-          <CustomText
-            title={'email_verification'}
-            classname={`${otpScreenStyles.title} ${activeTheme.text}`}
+          <AppCustomLogo
+            text={'magnolia_jewellers_email_verification'}
             testID={TEST_IDS.TEXT.ACCOUNT_VERIFICATION}
           />
           <CustomText
