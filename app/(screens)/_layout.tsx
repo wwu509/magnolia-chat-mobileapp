@@ -1,48 +1,61 @@
-import React from "react";
-import { Stack } from "expo-router";
-import { translate } from "../utils/i18n";
-import { NAVIGATION_ROUTES } from "@/app/constants/navigation-routes";
+import React from 'react';
+import {Stack} from 'expo-router';
+import {translate} from '../utils/i18n';
+import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
 
 const ScreensLayout: React.FC = () => {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{headerShown: false}}>
       <Stack.Screen
-        name={NAVIGATION_ROUTES.LOGIN_IN}
+        name={`${NAVIGATION_ROUTES.LOGIN_IN}/index`}
         options={{
-          title: translate("login"),
+          title: translate('login'),
           headerShown: false,
           headerBackTitleVisible: false,
         }}
       />
       <Stack.Screen
-        name={NAVIGATION_ROUTES.FORGOT_PASSWORD_OPTIONS}
+        name={`${NAVIGATION_ROUTES.REGISTER}/index`}
         options={{
-          title: translate("forgot_password"),
-          headerShown: true,
+          title: translate('register'),
+          headerShown: false,
           headerBackTitleVisible: false,
         }}
       />
       <Stack.Screen
-        name={NAVIGATION_ROUTES.FORGOT_PASSWORD}
+        name={`${NAVIGATION_ROUTES.FORGOT_PASSWORD}/index`}
         options={{
-          title: translate("forgot_password"),
-          headerShown: true,
+          title: translate('forgot_password'),
+          headerShown: false,
           headerBackTitleVisible: false,
         }}
       />
       <Stack.Screen
-        name={NAVIGATION_ROUTES.OTP}
+        name={`${NAVIGATION_ROUTES.OTP}/index`}
         options={{
-          title: translate("otp"),
-          headerShown: true,
+          title: translate('otp'),
+          headerShown: false,
           headerBackTitleVisible: false,
         }}
       />
       <Stack.Screen
-        name={NAVIGATION_ROUTES.RESET_PASSWORD}
+        name={`${NAVIGATION_ROUTES.RESET_PASSWORD}/index`}
         options={{
-          title: translate("reset_password"),
-          headerShown: true,
+          headerShown: false,
+          headerBackTitleVisible: false,
+        }}
+      />
+      <Stack.Screen
+        name={`${NAVIGATION_ROUTES.CHAT_MESSAGES}/index`}
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+        }}
+      />
+      <Stack.Screen
+        name={`${NAVIGATION_ROUTES.CREATE_GROUP}/index`}
+        options={{
+          headerShown: false,
           headerBackTitleVisible: false,
         }}
       />

@@ -1,4 +1,4 @@
-import {Href, router} from "expo-router";
+import { Href, router } from "expo-router";
 
 type Params = {
     [key: string]: string;
@@ -9,7 +9,7 @@ const navigateTo = (path: string, params?: Params): void => {
         ? `${path}?${new URLSearchParams(params).toString()}`
         : path;
     // @ts-ignore
-    router.push(url);
+    router.navigate(url);
 };
 
 const navigateBack = (): void => {
@@ -24,4 +24,4 @@ const reset = (path: Href<string | object>): void => {
     router.replace(path);
 };
 
-export {navigateTo, navigateBack, replaceRoute, reset};
+export { navigateTo, navigateBack, replaceRoute, reset };

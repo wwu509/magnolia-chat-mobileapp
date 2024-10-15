@@ -20,9 +20,13 @@ import CustomText from '@/app/components/custom-text';
 import {TEST_IDS} from '@/app/constants/test-ids/reset-password-screen';
 import BackSvg from '@/assets/svgs/arrow-left-svg';
 import LockSvg from '@/assets/svgs/password-lock-svg';
+import AppCustomLogo from '@/app/components/app-custom-logo';
+import {APIAxiosError, LOGIN_TYPES} from '@/app/constants';
+import {translate} from '@/app/utils/i18n';
 
 type ResetPasswordFormData = {
-  password: string;
+  oldPassword?: string;
+  newPassword: string;
   retypePassword: string;
 };
 
@@ -30,19 +34,38 @@ type ResetPasswordResponse = {
   message: string;
 };
 
-const schema = yup.object().shape({
-  password: yup
+const ForgotPasswordSchema = yup.object().shape({
+  newPassword: yup
     .string()
     .min(6, 'password_min_length')
     .required('new_password_required'),
   retypePassword: yup
     .string()
-    .oneOf([yup.ref('password'), undefined], 'passwords_must_match')
+    .oneOf([yup.ref('newPassword'), undefined], 'passwords_must_match')
+    .required('confirm_password_required'),
+});
+
+const ChangePasswordSchema = yup.object().shape({
+  oldPassword: yup
+    .string()
+    .min(6, 'password_min_length')
+    .required('new_password_required'),
+  newPassword: yup
+    .string()
+    .min(6, 'password_min_length')
+    .required('new_password_required'),
+  retypePassword: yup
+    .string()
+    .oneOf([yup.ref('newPassword'), undefined], 'passwords_must_match')
     .required('confirm_password_required'),
 });
 
 const ResetPasswordScreen: React.FC = () => {
-  const {email, otp} = useLocalSearchParams<{email: string; otp: string}>();
+  const {email, otp, type} = useLocalSearchParams<{
+    email: string;
+    otp: string;
+    type: string;
+  }>();
   const {activeTheme} = useTheme();
 
   const {
@@ -51,22 +74,39 @@ const ResetPasswordScreen: React.FC = () => {
     handleSubmit,
     formState: {errors},
   } = useForm<ResetPasswordFormData>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(
+      type === LOGIN_TYPES.LOGIN_MOBILE_OTP
+        ? ChangePasswordSchema
+        : ForgotPasswordSchema,
+    ),
   });
 
-  const password = watch('password');
+  const oldPassword = watch('oldPassword');
+  const newPassword = watch('newPassword');
   const retypePassword = watch('retypePassword');
 
   const resetPassword = async ({
-    password,
+    newPassword,
+    oldPassword,
   }: ResetPasswordFormData): Promise<ResetPasswordResponse> => {
+    const body =
+      type === LOGIN_TYPES.LOGIN_MOBILE_OTP
+        ? {
+            oldPassword,
+            newPassword,
+          }
+        : {
+            email,
+            password: newPassword,
+            otp,
+          };
+    const endPointUrl =
+      type === LOGIN_TYPES.LOGIN_MOBILE_OTP
+        ? AUTH_API.CHANGE_PASSWORD
+        : AUTH_API.RESET_PASSWORD;
     const {data} = await axiosConfig.post<ResetPasswordResponse>(
-      AUTH_API.RESET_PASSWORD,
-      {
-        email,
-        password: password,
-        otp,
-      },
+      endPointUrl,
+      body,
     );
 
     return data;
@@ -79,10 +119,18 @@ const ResetPasswordScreen: React.FC = () => {
   > = useMutation({
     mutationFn: resetPassword,
     onSuccess: () => {
-      navigateTo(NAVIGATION_ROUTES.PASSWORD_UPDATED);
+      if (type === LOGIN_TYPES.LOGIN_MOBILE_OTP) {
+        navigateBack();
+        showToast(translate('password_reset_success'));
+      } else {
+        navigateTo(NAVIGATION_ROUTES.PASSWORD_UPDATED);
+      }
     },
-    onError: error => {
-      showToast('password_reset_failure');
+    onError: (error: APIAxiosError) => {
+      console.warn('Error: ', JSON.stringify(error?.response?.data, null, 2));
+      showToast(
+        error?.response?.data?.message || translate('password_reset_failure'),
+      );
     },
   });
 
@@ -100,20 +148,37 @@ const ResetPasswordScreen: React.FC = () => {
         <BackSvg />
       </Pressable>
       <View className={globalStyle.responsiveStyle}>
-        <CustomText
-          title={'create_new_password'}
-          classname={`${resetPasswordStyles.title} ${activeTheme.text}`}
+        <AppCustomLogo
+          text={'magnolia_jewellers_reset_password'}
           testID={TEST_IDS.TEXT.CREATE_NEW_PASSWORD}
         />
         <CustomText
-          title={'new_password_hint'}
+          title={
+            type === LOGIN_TYPES.LOGIN_MOBILE_OTP
+              ? 'old_new_password_hint'
+              : 'new_password_hint'
+          }
           classname={`${resetPasswordStyles.description} ${activeTheme.label}`}
           testID={TEST_IDS.TEXT.NEW_PASSWORD_HINT}
         />
+        {type === LOGIN_TYPES.LOGIN_MOBILE_OTP && (
+          <CustomFormField
+            control={control as unknown as Control}
+            name="oldPassword"
+            label={'old_password'}
+            placeholder={'input_password'}
+            secureTextEntry
+            errors={errors as FieldErrors}
+            customIcon={LockSvg}
+            labelID={TEST_IDS.TEXT.ENTER_YOUR_NEW_PASSWORD}
+            errorID={TEST_IDS.ERROR.ENTER_YOUR_NEW_PASSWORD}
+            inputID={TEST_IDS.INPUT.ENTER_YOUR_NEW_PASSWORD}
+          />
+        )}
         <CustomFormField
           control={control as unknown as Control}
-          name="password"
-          label={'password'}
+          name="newPassword"
+          label={'new_password'}
           placeholder={'input_password'}
           secureTextEntry
           errors={errors as FieldErrors}
@@ -137,7 +202,7 @@ const ResetPasswordScreen: React.FC = () => {
         <CustomButton
           title={'confirm'}
           onPress={handleSubmit(onSubmit)}
-          disabled={!password || !retypePassword}
+          disabled={!oldPassword || !newPassword || !retypePassword}
           loading={ResetPasswordMutation?.isPending}
           testID={TEST_IDS.BUTTON.RESET_PASSWORD}
         />

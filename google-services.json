@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "307137643765",
+    "project_id": "magnolia-jewellers-app",
+    "storage_bucket": "magnolia-jewellers-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:307137643765:android:e330424731e80d0b5531bc",
+        "android_client_info": {
+          "package_name": "com.magnolia.jewellers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpbWekiqHquSlClZ_5bEnk9KhvmH0z3xk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

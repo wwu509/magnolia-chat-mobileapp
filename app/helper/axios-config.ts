@@ -1,8 +1,8 @@
 import axios from 'axios';
 import * as Crypto from 'expo-crypto';
-import {getAccessToken, setAccessToken} from '../utils/access-token-data';
-import {AUTH_API} from '../constants/api-routes';
-import {generateHmac} from './request-signature';
+import { getAccessToken, setAccessToken } from '../utils/access-token-data';
+import { AUTH_API } from '../constants/api-routes';
+import { generateHmac } from './request-signature';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const CLIENT_ID = process.env.EXPO_PUBLIC_SIGNATURE_CLIENT_ID;
@@ -65,7 +65,7 @@ axiosConfig.interceptors.request.use(config => {
   const url = config?.url;
   const nonce = Crypto.randomUUID();
   const timestamp = new Date().getTime();
-  const messageParams = {url, body, nonce, timestamp};
+  const messageParams = { url, body, nonce, timestamp };
   const message = JSON.stringify(messageParams);
 
   config.headers['x-signature'] = generateHmac(message);

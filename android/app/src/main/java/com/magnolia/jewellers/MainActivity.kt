@@ -1,4 +1,4 @@
-package com.lelia
+package com.magnolia.jewellers
 
 import android.os.Build
 import android.os.Bundle

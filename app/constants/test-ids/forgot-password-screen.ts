@@ -7,6 +7,9 @@ export const TEST_IDS = {
     BACK_ICON: 'forgot_password:back_icon_btn',
     SEND_OTP: 'forgot_password:send_otp_btn',
   },
+  IMAGE: {
+    FORGOT_PASSWORD: 'forgot_password:forgot_password_img',
+  },
   ERROR: {
     ENTER_YOUR_EMAIL: 'forgot_password:enter_your_email_err',
   },

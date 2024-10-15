@@ -1,76 +1,81 @@
-import { NAVIGATION_ROUTES } from "@/app/constants/navigation-routes";
-import { navigateTo } from "@/app/helper/navigation";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import React from "react";
-import { View, Text, Image, Pressable } from "react-native";
+import React from 'react';
+import {View, Text, Image, Pressable} from 'react-native';
+import moment from 'moment';
+import {MaterialCommunityIcons} from '@expo/vector-icons';
 
-export interface MessageItemProps {
-  name: string;
-  avatar: string;
-  message: string;
-  time: string;
-  isRead?: boolean;
-  isOnline?: boolean;
-  isTyping?: boolean;
-  unreadCount?: number;
-}
+import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
+import {navigateTo} from '@/app/helper/navigation';
+import {Conversation} from '@/app/store/chat-listing-slice';
 
-const MessageItem: React.FC<MessageItemProps> = ({
-  name,
-  avatar,
-  message,
-  time,
-  isRead = true,
-  isOnline = false,
-  isTyping = false,
-  unreadCount = 0,
+import UserDefault from '@/assets/images/user_default.jpg';
+
+const MessageItem: React.FC<Conversation> = ({
+  conversationSid,
+  friendlyName,
+  latestMessage,
+  attributes,
 }) => {
   return (
     <Pressable
-      className="flex flex-row item-center justify-between mt-4 w-full border-b border-gray-300 pb-4"
-      onPress={() => navigateTo(NAVIGATION_ROUTES.CHAT_MESSAGES)}
-    >
-      <View className="flex flex-row text-sm max-w-full">
-        <View className="mr-2">
+      className="flex flex-row item-center mt-4 w-full border-b border-gray-300 pb-4"
+      onPress={() =>
+        navigateTo(NAVIGATION_ROUTES.CHAT_MESSAGES, {
+          name: friendlyName,
+          id: conversationSid,
+          important: `${attributes?.important}`,
+        })
+      }>
+      <View className="w-[88%] flex flex-row text-sm max-w-full mr-[2%]">
+        <View className="mr-2 w-[18%]">
           <Image
-            accessibilityLabel={`${name}'s avatar`}
-            source={{ uri: avatar }}
-            className="object-contain shrink-0 self-stretch my-auto w-11 aspect-square"
+            accessibilityLabel={`${friendlyName}'s avatar`}
+            source={UserDefault}
+            className="h-[40px] w-[40px] mx-2 rounded-full shrink-0 self-stretch my-auto w-11 aspect-square"
           />
         </View>
-        <View>
-          <View className="flex flex-col self-stretch my-auto w-[178px]">
-            <View className="flex gap-1 items-center self-start font-medium text-black text-opacity-80">
-              <View className="self-stretch my-auto ">
-                <Text className="font-medium text-base">{name}</Text>
-              </View>
+        <View className="w-[82%]">
+          <Text className="font-medium text-base text-black/80">
+            {friendlyName}
+          </Text>
+          {!latestMessage?.media ? (
+            <Text className="text-base text-black/50" numberOfLines={1}>
+              {latestMessage?.body || 'New conversation started'}
+            </Text>
+          ) : (
+            <View className="">
+              {latestMessage?.media?.[0]?.['ContentType']?.includes('image') ? (
+                <View className="flex-row items-center">
+                  <MaterialCommunityIcons
+                    name="image"
+                    size={20}
+                    color="black"
+                  />
+                  <Text className="ml-2 text-base text-black/50">Image</Text>
+                </View>
+              ) : (
+                latestMessage?.media?.[0]?.['ContentType']?.includes(
+                  'video',
+                ) && (
+                  <View className="flex-row items-center">
+                    <MaterialCommunityIcons
+                      name="video"
+                      size={20}
+                      color="black"
+                    />
+                    <Text className="ml-2 text-base text-black/50">Video</Text>
+                  </View>
+                )
+              )}
             </View>
-            <View
-              className={
-                isTyping ? "text-green-500" : "text-black text-opacity-50"
-              }
-            >
-              <Text className="text-base">{message}</Text>
-            </View>
-          </View>
+          )}
         </View>
       </View>
-      <View className="flex flex-col items-end self-stretch my-auto text-xs leading-none whitespace-nowrap text-black text-opacity-70">
+      <View className="items-center justify-center w-[10%]">
         <View>
-          <Text>{time}</Text>
+          <Text className="text-xs whitespace-nowrap text-black/70">
+            {moment(latestMessage?.dateCreated).format('HH:mm')}
+          </Text>
         </View>
-        {unreadCount > 0 ? (
-          <View className="mt-1 w-5 h-5 text-xs font-medium text-white bg-green-500 rounded-[100px]">
-            <Text className="text-center text-white">{unreadCount}</Text>
-          </View>
-        ) : (
-          <MaterialCommunityIcons
-            color={"green"}
-            size={16}
-            style={{ marginTop: 3 }}
-            name={isRead ? "check-all" : "check"}
-          />
-        )}
       </View>
     </Pressable>
   );

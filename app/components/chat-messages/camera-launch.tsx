@@ -14,6 +14,8 @@ import CameraFlip from '@/assets/svgs/flip-svg';
 import Gallery from '@/assets/svgs/gallery-svg';
 import NoFlashIcon from '@/assets/svgs/no-flash-svg';
 import FlashIcon from '@/assets/svgs/flash-svg';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {PickImageState} from '@/app/helper/media-picker';
 
 export default function CameraLaunch({
   setVisible,
@@ -21,8 +23,8 @@ export default function CameraLaunch({
   getCameraImage,
 }: {
   setVisible: (visible: boolean) => void;
-  onHandleGallery: () => void;
-  getCameraImage: (uri: string, filename: string) => void;
+  onHandleGallery: ({setModalVisible, handleReslut}: PickImageState) => void;
+  getCameraImage: (photo: any, filename: string) => void;
 }) {
   const [facing, setFacing] = useState<CameraType>('back');
   const [torchState, setTorchState] = useState<boolean>(false);
@@ -43,12 +45,12 @@ export default function CameraLaunch({
   if (!permission.granted) {
     // Camera permissions are not granted yet.
     return (
-      <View className="flex justify-center">
+      <SafeAreaView className="flex h-full justify-center items-center">
         <Text className="text-center pb-[10]">
           We need your permission to show the camera
         </Text>
         <Button onPress={requestPermission} title="grant permission" />
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -60,7 +62,7 @@ export default function CameraLaunch({
     const filenameWithExtension = photo?.uri?.split('/').pop();
     const filename = filenameWithExtension?.split('.').slice(0, -1).join('.');
 
-    getCameraImage(photo?.uri, filename);
+    getCameraImage(photo, filename);
     setVisible(false);
   };
 
