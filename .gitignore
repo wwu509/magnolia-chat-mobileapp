@@ -21,6 +21,9 @@ expo-env.d.ts
 
 .yarn/
 .yarnrc.yml
-
-
+google-services.json
+android/app/magnolia-jewellers-app-service-account-key.json
+android/app/google-services.json
+android/app/magnolia-proj.keystore
+android/app/proguard-rules.pro
 .env
