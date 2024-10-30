@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Lelia App",
-    "slug": "lelia-app",
+    "name": "Magnolia Jewellers",
+    "slug": "magnolia-jewellers",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,8 +16,12 @@
       "config": {
         "usesNonExemptEncryption": false
       },
+      "entitlements": {
+        "aps-environment": "production"
+      },
       "supportsTablet": true,
-      "bundleIdentifier": "com.magnolia.jewellers"
+      "bundleIdentifier": "com.magnolia.jewellers",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "permissions": [
@@ -56,18 +60,6 @@
           "fonts": ["./assets/fonts/GreatVibes-Regular.ttf"]
         }
       ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/icons/notification_icon.png",
-          "color": "#ffffff",
-          "defaultChannel": "default",
-          "sounds": [
-            "./assets/sounds/notification_sound.wav",
-            "./assets/sounds/notification_sound1.wav"
-          ]
-        }
-      ],
       ["expo-secure-store"],
       "expo-localization",
       [
@@ -81,6 +73,15 @@
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
+      ],
+      ["@react-native-firebase/app"],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
       ]
     ],
     "experiments": {
@@ -89,12 +90,9 @@
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "04a61345-942c-4cdc-aa64-3d6b893b4c2e"
       }
     },
-    "owner": "hannan-azmat-pikessoft",
+    "owner": "lelia",
     "runtimeVersion": {
       "policy": "nativeVersion"
     }

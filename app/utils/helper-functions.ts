@@ -1,6 +1,11 @@
 import moment from 'moment';
-import { ChatMessageResponse } from '../store/chat-messages-slice';
-import { User } from '../store/global-slice';
+import { ChatMessageResponse, clearChatMessages } from '../store/chat-messages-slice';
+import { clearUserData, User } from '../store/global-slice';
+import { clearConversationList } from '../store/chat-listing-slice';
+import { clearAccessToken } from './access-token-data';
+import { replaceRoute } from '../helper/navigation';
+import { NAVIGATION_ROUTES } from '../constants/navigation-routes';
+import { Href } from 'expo-router';
 
 export const getMessageFormat = (
     chatMessages: ChatMessageResponse,
@@ -44,4 +49,13 @@ export const getMessageFormat = (
 
 export function capitalizeText(text: string) {
     return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+export async function logoutUser(dispatch: (arg0: { payload: undefined; type: "global/clearUserData" | "chatMessages/clearChatMessages" | "chatList/clearConversationList"; }) => void, removeQueries = () => { }) {
+    dispatch(clearUserData());
+    dispatch(clearChatMessages());
+    dispatch(clearConversationList());
+    removeQueries();
+    await clearAccessToken();
+    replaceRoute(NAVIGATION_ROUTES.LOGIN_IN as Href<string | object>);
 }

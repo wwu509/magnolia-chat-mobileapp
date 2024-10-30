@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "LeliaApp.app"
-               BlueprintName = "leliaapp"
-               ReferencedContainer = "container:leliaapp.xcodeproj">
+               BuildableName = "MagnoliaJewellers.app"
+               BlueprintName = "MagnoliaJewellers"
+               ReferencedContainer = "container:MagnoliaJewellers.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "leliaappTests.xctest"
-               BlueprintName = "leliaappTests"
-               ReferencedContainer = "container:leliaapp.xcodeproj">
+               BuildableName = "MagnoliaJewellersTests.xctest"
+               BlueprintName = "MagnoliaJewellersTests"
+               ReferencedContainer = "container:MagnoliaJewellers.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "LeliaApp.app"
-            BlueprintName = "leliaapp"
-            ReferencedContainer = "container:leliaapp.xcodeproj">
+            BuildableName = "MagnoliaJewellers.app"
+            BlueprintName = "MagnoliaJewellers"
+            ReferencedContainer = "container:MagnoliaJewellers.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "LeliaApp.app"
-            BlueprintName = "leliaapp"
-            ReferencedContainer = "container:leliaapp.xcodeproj">
+            BuildableName = "MagnoliaJewellers.app"
+            BlueprintName = "MagnoliaJewellers"
+            ReferencedContainer = "container:MagnoliaJewellers.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

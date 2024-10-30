@@ -95,6 +95,7 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
             <TextInput
               testID={inputID}
               accessibilityLabel={inputID}
+              placeholderTextColor="gray"
               className={`${inputStyle}
                   ? ${inputStyle}
                   : ${formFieldStyles.input} ${errors?.[name]}  border-0

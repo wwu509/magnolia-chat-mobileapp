@@ -11,7 +11,7 @@ import {translate} from '@/app/utils/i18n';
 import CustomText from '@/app/components/custom-text';
 import {useTheme} from '@/app/components/theme-context';
 import CustomButton from '@/app/components/custom-button';
-import TabView from '../tab-view';
+import TabView from './tab-view';
 import {newChatTabs} from '@/app/constants';
 import {pickImage, pickVideos} from '@/app/helper/media-picker';
 import {ImagePickerAsset} from 'expo-image-picker';
@@ -151,6 +151,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
                   value={value}
                   placeholder={translate('enter_phone_number')}
                   onChangePhoneNumber={onChange}
+                  placeholderTextColor="gray"
                   selectedCountry={selectedCountry}
                   onChangeSelectedCountry={handleSelectedCountry}
                   defaultCountry="US"
@@ -169,13 +170,11 @@ const CustomModal: React.FC<CustomModalProps> = ({
               </View>
             )}
           />
-          <View className="w-full mt-4 justify-center items-center">
-            <TabView
-              tabs={newChatTabs}
-              activeTab={selectedTab}
-              onTabChange={handleTabSelection}
-            />
-          </View>
+          <TabView
+            tabs={newChatTabs}
+            activeTab={selectedTab}
+            onTabChange={handleTabSelection}
+          />
           {selectedTab === 'text' ? (
             <CustomFormField
               control={control as unknown as Control}

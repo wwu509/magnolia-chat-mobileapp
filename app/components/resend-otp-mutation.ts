@@ -2,6 +2,7 @@ import { useMutation, UseMutationResult } from '@tanstack/react-query';
 import axiosConfig from '@/app/helper/axios-config';
 import { AUTH_API } from '@/app/constants/api-routes';
 import showToast from './toast';
+import { translate } from '../utils/i18n';
 
 type ResendOtpResponse = {
   message: string;
@@ -12,7 +13,7 @@ const useResendOtpMutation = (
   type: string,
 ): UseMutationResult<ResendOtpResponse, unknown, void> => {
   const resendOtp = async () => {
-    const { data } = await axiosConfig.post(`${AUTH_API.OTP_RESEND}${type}`, {
+    const { data } = await axiosConfig.post(`${AUTH_API.FORGOT_PASSWORD}`, {
       email,
     });
     return data;
@@ -21,10 +22,10 @@ const useResendOtpMutation = (
   return useMutation({
     mutationFn: resendOtp,
     onSuccess: () => {
-      showToast('otp_resent_success');
+      showToast(translate('otp_resent_success'));
     },
-    onError: error => {
-      showToast('otp_resent_failure');
+    onError: () => {
+      showToast(translate('otp_resent_failure'));
     },
   });
 };

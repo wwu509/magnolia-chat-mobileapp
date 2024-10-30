@@ -24,7 +24,7 @@ const RenderMessage: React.FC<RenderMessageProps> = ({
     <View
       key={`inner-${index}`}
       className={`flex-row ${
-        item?.author === username ? '' : 'flex-row-reverse'
+        item?.author !== username ? '' : 'flex-row-reverse'
       } my-1.5`}>
       <View className="flex-col-reverse">
         <Image
@@ -35,7 +35,7 @@ const RenderMessage: React.FC<RenderMessageProps> = ({
       </View>
       <View
         className={`${
-          item?.author === username ? 'bg-white' : 'bg-black'
+          item?.author !== username ? 'bg-white' : 'bg-black'
         } flex-col-reverse max-w-[75%] rounded-lg`}>
         <View className="flex-row-reverse px-2.5 mb-[5px]">
           <Text className={`${'text-gray-500'} text-xs`}>
@@ -47,7 +47,7 @@ const RenderMessage: React.FC<RenderMessageProps> = ({
           {!item?.media ? (
             <Text
               className={`${
-                item?.author === username ? 'text-black' : 'text-white'
+                item?.author !== username ? 'text-black' : 'text-white'
               } font-semibold`}>
               {item?.body}
             </Text>

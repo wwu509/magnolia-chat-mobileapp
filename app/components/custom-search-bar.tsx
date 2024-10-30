@@ -1,4 +1,4 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import {View, TextInput} from 'react-native';
 
@@ -9,21 +9,17 @@ type SearchBarProps = {
 
 const SearchBar: React.FC<SearchBarProps> = ({handleSearch, filter}) => {
   return (
-    <View className="flex-row bg-stone-200 rounded-xl px-4 mx-5 py-3 items-center">
-      <MaterialCommunityIcons
+    <View className="flex-row bg-gray-200 rounded-xl border border-gray-300 px-4 py-3 items-center shadow-md">
+      <Ionicons
         color={'gray'}
-        size={18}
-        style={{
-          marginRight: 10,
-          width: '6%',
-          marginTop: 2,
-        }}
-        name={'magnify'}
+        size={25}
+        name="search-outline"
         onPress={() => {}}
       />
       <TextInput
         placeholder="Search"
-        className="w-[90%] text-base -mt-1"
+        placeholderTextColor="gray"
+        className="w-10/12 ml-2 text-sm -mt-1"
         onChangeText={text => handleSearch({search: text || '', filter})}
       />
     </View>

@@ -11,29 +11,27 @@ import otpScreenStyles from '@/app/styles/otp-style';
 import CustomText from '@/app/components/custom-text';
 import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
 import {Href} from 'expo-router';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {styled} from 'nativewind';
 
 const PasswordUpdatedScreen: React.FC = () => {
   const {activeTheme} = useTheme();
-
   const [timeLeft, setTimeLeft] = useState<number>(10);
-
+  const StyledKeyboardAwareScrollView = styled(KeyboardAwareScrollView);
   const navigateToLogin = useCallback(() => {
     reset(NAVIGATION_ROUTES.LOGIN_IN as Href<string | object>);
   }, []);
 
   useEffect(() => {
-    // If timeLeft is 0, stop the timer
     if (timeLeft === 0) {
       navigateToLogin();
       return;
     }
 
-    // Decrease the timer by 1 every second
     const timerId = setInterval(() => {
       setTimeLeft(prevTime => prevTime - 1);
     }, 1000);
 
-    // Cleanup the interval when the component unmounts or timeLeft reaches 0
     return () => clearInterval(timerId);
   }, [navigateToLogin, timeLeft]);
 
@@ -47,36 +45,42 @@ const PasswordUpdatedScreen: React.FC = () => {
         className="w-[100%] h-[3%]">
         <BackSvg />
       </Pressable>
-      <View className="w-full h-[52%] flex-col justify-between mt-[20%]">
-        <View className="flex flex-col items-center mt-6 w-full text-center">
-          <CheckSvg />
-          <CustomText
-            title={'password_updated'}
-            classname={`mt-7 text-xl font-bold ${activeTheme.checkboxText}`}
-            testID={TEST_IDS.TEXT.PASSWORD_UPDATED}
-          />
-          <CustomText
-            title={'password_update_success'}
-            classname={`mt-2 text-sm leading-5 ${activeTheme.text}`}
-            testID={TEST_IDS.TEXT.PASSWORD_UPDATED_SUCCESS}
-          />
+      <StyledKeyboardAwareScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{height: '100%'}}
+        className={'w-full'}
+        enableOnAndroid>
+        <View className="w-full h-[52%] flex-col justify-between mt-[20%]">
+          <View className="flex flex-col items-center mt-6 w-full text-center">
+            <CheckSvg />
+            <CustomText
+              title={'password_updated'}
+              classname={`mt-7 text-xl font-bold ${activeTheme.checkboxText}`}
+              testID={TEST_IDS.TEXT.PASSWORD_UPDATED}
+            />
+            <CustomText
+              title={'password_update_success'}
+              classname={`mt-2 text-sm leading-5 ${activeTheme.text}`}
+              testID={TEST_IDS.TEXT.PASSWORD_UPDATED_SUCCESS}
+            />
+          </View>
         </View>
-      </View>
-      <View className="w-full h-[28%] items-center mt-40">
-        <CustomButton
-          title={'back_to_sign_in'}
-          onPress={navigateToLogin}
-          testID={TEST_IDS.BUTTON.BACK_TO_SIGN_IN}
-        />
-        <View className="flex-row gap-1 items-start mt-3 text-zinc-600">
-          <CustomText
-            title={'redirecting_to_sign_in'}
-            classname={`${otpScreenStyles.subtitle} ${activeTheme.checkboxText}`}
-            dynamicValue={{timeLeft}}
-            testID={TEST_IDS.TEXT.REDIRECTED_TO_SIGN_IN}
+        <View className="w-full h-[28%] items-center mt-40">
+          <CustomButton
+            title={'back_to_sign_in'}
+            onPress={navigateToLogin}
+            testID={TEST_IDS.BUTTON.BACK_TO_SIGN_IN}
           />
+          <View className="flex-row gap-1 items-start mt-3 text-zinc-600">
+            <CustomText
+              title={'redirecting_to_sign_in'}
+              classname={`${otpScreenStyles.subtitle} ${activeTheme.checkboxText}`}
+              dynamicValue={{timeLeft}}
+              testID={TEST_IDS.TEXT.REDIRECTED_TO_SIGN_IN}
+            />
+          </View>
         </View>
-      </View>
+      </StyledKeyboardAwareScrollView>
     </SafeAreaView>
   );
 };

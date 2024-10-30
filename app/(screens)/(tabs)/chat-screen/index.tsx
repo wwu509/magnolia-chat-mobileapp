@@ -14,6 +14,7 @@ import {
   Conversation,
 } from '@/app/store/chat-listing-slice';
 import {useTheme} from '@/app/components/theme-context';
+import BackButtonWithTitle from '@/app/components/header/back-button';
 
 const MessageList: React.FC = () => {
   const {activeTheme} = useTheme();
@@ -101,32 +102,34 @@ const MessageList: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="h-full rounded-none w-full  max-w-[90%] m-auto">
-      <View className="self-start text-2xl font-bold leading-none text-black ">
-        <Text className="font-bold mb-2 text-xl">Messages</Text>
+    <SafeAreaView className="h-full rounded-none w-full bg-white m-auto">
+      <BackButtonWithTitle title="Messages" />
+      <View className="px-4 mt-4">
+        <SearchBar handleSearch={handleSearchFilter} filter={filter} />
+        <SortBy handleSearch={handleSearchFilter} search={searchText} />
+        {isLoading ? (
+          <View className="flex-col-reverse p-2.5 h-[85%] justify-center items-center">
+            <ActivityIndicator size="large" color={activeTheme.linkContainer} />
+          </View>
+        ) : listData?.length === 0 ? (
+          <View className="flex-col-reverse p-2.5 h-[75%] justify-center items-center">
+            <Text className="text-center text-base text-gray-600 w-2/3">
+              You currently don't have any chats. Start a conversation now!
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={listData}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            showsVerticalScrollIndicator={false}
+            className="w-full"
+            onEndReachedThreshold={0.5}
+            onEndReached={handleLoadMore}
+            ListFooterComponent={renderFooter}
+          />
+        )}
       </View>
-      <SearchBar handleSearch={handleSearchFilter} filter={filter} />
-      <SortBy handleSearch={handleSearchFilter} search={searchText} />
-      {isLoading ? (
-        <View className="flex-col-reverse p-2.5 h-[85%] justify-center items-center">
-          <ActivityIndicator size="large" color={activeTheme.linkContainer} />
-        </View>
-      ) : listData?.length === 0 ? (
-        <View className="flex-col-reverse p-2.5 h-[85%] justify-center items-center">
-          <Text>No Chats</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={listData}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          showsVerticalScrollIndicator={false}
-          className="w-full"
-          onEndReachedThreshold={0.5}
-          onEndReached={handleLoadMore}
-          ListFooterComponent={renderFooter}
-        />
-      )}
     </SafeAreaView>
   );
 };

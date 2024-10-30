@@ -37,6 +37,7 @@ export type User = {
     name: string;
     email: string;
     userName: string;
+    muteNotifications: boolean;
     isActive: boolean;
     storage_preference: string;
     languagePreference: string;
@@ -46,6 +47,7 @@ export type User = {
     conversations: ChatListResponse;
     permissions: Permission[];
     userRolePermissions: UserRolePermission[];
+    importantConversations: number;
 };
 
 // Global state type
@@ -77,9 +79,14 @@ export const globalSlice = createSlice({
         clearUserData: (state) => {
             state.user = null;
         },
+        muteUserNotifications: (state, action: PayloadAction<boolean>) => {
+            if (state.user) {
+                state.user.muteNotifications = action.payload;
+            }
+        },
     },
 });
 
-export const { setName, setUserData, clearUserData } = globalSlice.actions;
+export const { setName, setUserData, clearUserData, muteUserNotifications } = globalSlice.actions;
 
 export default globalSlice.reducer;

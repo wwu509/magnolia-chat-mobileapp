@@ -98,7 +98,6 @@ const ResetPasswordScreen: React.FC = () => {
         : {
             email,
             password: newPassword,
-            otp,
           };
     const endPointUrl =
       type === LOGIN_TYPES.LOGIN_MOBILE_OTP
@@ -202,7 +201,11 @@ const ResetPasswordScreen: React.FC = () => {
         <CustomButton
           title={'confirm'}
           onPress={handleSubmit(onSubmit)}
-          disabled={!oldPassword || !newPassword || !retypePassword}
+          disabled={
+            type === LOGIN_TYPES.LOGIN_MOBILE_OTP
+              ? !oldPassword || !newPassword || !retypePassword
+              : !newPassword || !retypePassword
+          }
           loading={ResetPasswordMutation?.isPending}
           testID={TEST_IDS.BUTTON.RESET_PASSWORD}
         />

@@ -9,6 +9,7 @@ export const AUTH_API = {
   CHANGE_PASSWORD: 'auth/change-password',
   LOGOUT: 'auth/logout',
   REFRESH_TOKEN: 'auth/refresh',
+  MUTE_NOTIFICATION: 'users/mute-notifications',
 };
 
 export const CHAT_API = {
@@ -24,5 +25,6 @@ export const CHAT_API = {
   ADD_CUSTOMER_TO_GROUP: 'conversations/group/join/phone-number/',
   ADD_STAFF_TO_GROUP: 'conversations/group/join/identity/',
   REMOVE_USER: 'conversations/participants/',
-  GET_STAFF_MEMBERS: 'conversations/available-identities/'
+  GET_STAFF_MEMBERS: 'conversations/available-identities/',
+  MARK_AS_UNREAD: "conversations/unread/"
 };

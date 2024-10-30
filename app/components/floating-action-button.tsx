@@ -115,7 +115,7 @@ export function FloatingButton({
             thumbAnimatedStyle,
             opacityAnimatedStyle,
           ]}>
-          <AddChat fill="#9AE2ED" width={28} height={28} />
+          <AddChat fill="#57c7d9" width={28} height={28} />
         </Animated.View>
       </TouchableOpacity>
 
@@ -133,7 +133,7 @@ export function FloatingButton({
             pinAnimatedStyle,
             opacityAnimatedStyle,
           ]}>
-          <AddGroup fill="#9AE2ED" width={28} height={28} />
+          <AddGroup fill="#57c7d9" width={28} height={28} />
         </Animated.View>
       </TouchableOpacity>
 
@@ -143,7 +143,7 @@ export function FloatingButton({
         testID={TEST_IDS.BUTTON.PLUS}>
         <Animated.View
           style={[styles.button, styles.menu, rotationAnimatedStyle]}>
-          <Entypo name="plus" size={32} color="#ffffff" />
+          <Entypo name="plus" size={25} color="#ffffff" />
         </Animated.View>
       </TouchableOpacity>
     </View>
@@ -157,8 +157,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   menu: {
-    backgroundColor: '#9AE2ED',
+    backgroundColor: 'black',
   },
   secondary: {
     width: 48,
