@@ -1,11 +1,18 @@
 import axios from 'axios';
 import * as Crypto from 'expo-crypto';
-import { getAccessToken, setAccessToken } from '../utils/access-token-data';
-import { AUTH_API } from '../constants/api-routes';
-import { generateHmac } from './request-signature';
+import {
+  clearAccessToken,
+  getAccessToken,
+  setAccessToken,
+} from '../utils/access-token-data';
+import {AUTH_API} from '../constants/api-routes';
+import {generateHmac} from './request-signature';
+import {NativeModules} from 'react-native';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const CLIENT_ID = process.env.EXPO_PUBLIC_SIGNATURE_CLIENT_ID;
+
+// const queryClient = new QueryClient();
 
 const axiosConfig = axios.create({
   baseURL: API_URL,
@@ -13,7 +20,7 @@ const axiosConfig = axios.create({
     Accept: 'application/json',
     'Accept-Language': 'en',
     'Content-Type': 'application/json',
-    origin: 'http://testing-tenant-his.pikessoft.com',
+    'ngrok-skip-browser-warning': '69420',
     // origin: "http://ps-his.pikessoft.com",
   },
 });
@@ -33,7 +40,7 @@ axiosConfig.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error?.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const _token = await getAccessToken();
@@ -51,8 +58,11 @@ axiosConfig.interceptors.response.use(
         await setAccessToken(myToken);
         originalRequest.headers.Authorization = `Bearer ${response.data?.access_token}`;
         return axios(originalRequest);
-      } catch (error) {
-        //logout logic
+      } catch (error: any) {
+        if (error?.response?.data?.message === 'Unauthorized') {
+          await clearAccessToken();
+          NativeModules.DevSettings.reload();
+        }
       }
     }
 
@@ -65,7 +75,7 @@ axiosConfig.interceptors.request.use(config => {
   const url = config?.url;
   const nonce = Crypto.randomUUID();
   const timestamp = new Date().getTime();
-  const messageParams = { url, body, nonce, timestamp };
+  const messageParams = {url, body, nonce, timestamp};
   const message = JSON.stringify(messageParams);
 
   config.headers['x-signature'] = generateHmac(message);

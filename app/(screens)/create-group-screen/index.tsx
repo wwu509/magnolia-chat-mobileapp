@@ -31,6 +31,10 @@ import {
 import {capitalizeText} from '@/app/utils/helper-functions';
 import {navigateTo} from '@/app/helper/navigation';
 import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
+import showToast from '@/app/components/toast';
+import {APIAxiosError} from '@/app/constants';
+import {translate} from '@/app/utils/i18n';
+import {RootState} from '@/app/store/global-slice';
 
 const USER_API = {
   CUSTOMERS: 'user/conversations/customers',
@@ -58,6 +62,7 @@ const UserSelectionScreen = () => {
 
   const dispatch = useDispatch();
 
+  const {user} = useSelector((state: RootState) => state.global);
   const {customers: customersList, staff: staffList} = useSelector(
     (state: {createGroup: CreateGroupRootState}) => state.createGroup,
   );
@@ -153,8 +158,11 @@ const UserSelectionScreen = () => {
       queryClient.invalidateQueries({queryKey: ['aboutMe']});
       queryClient.invalidateQueries({queryKey: ['chats']});
     },
-    onError: error => {
+    onError: (error: APIAxiosError) => {
       console.warn(JSON.stringify(error, null, 2));
+      showToast(
+        error?.response?.data?.message || translate('something_went_wrong'),
+      );
     },
   });
 
@@ -177,12 +185,12 @@ const UserSelectionScreen = () => {
     const {identities, phoneNumbers} = getUserIdentitiesPhoneNumbers();
     const body = {
       friendlyName: name,
-      uniqueName: name,
+      uniqueName: `${user?.userName}-${name}`,
       identities,
       phoneNumbers,
     };
     CreateGroup.mutate(body);
-  }, [CreateGroup, getUserIdentitiesPhoneNumbers, name]);
+  }, [CreateGroup, getUserIdentitiesPhoneNumbers, name, user?.userName]);
 
   const addToCustomersList = (user: ConversationRecord) => {
     dispatch(addCustomersList(user));
@@ -195,7 +203,7 @@ const UserSelectionScreen = () => {
         groupName={capitalizeText(name)}
         addToCustomersList={addToCustomersList}
       />
-      <View className="py-3">
+      <View className="px-4 pb-4 bg-white">
         <SearchBar handleSearch={handleSearch} filter="" />
       </View>
       {selectedUsers?.length > 0 && (

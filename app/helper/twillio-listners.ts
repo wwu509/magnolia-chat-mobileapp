@@ -7,7 +7,7 @@ import {
   Participant,
   ParticipantUpdateReason,
 } from '@twilio/conversations';
-import { addMessage } from '@/app/store/chat-messages-slice';
+import {addMessage} from '@/app/store/chat-messages-slice';
 import moment from 'moment';
 
 // Global client variable
@@ -57,7 +57,7 @@ export const initializeTwilioClient = (token: string, dispatch: any): void => {
     console.log('Twilio client initialized successfully.');
     setupTwilioListeners(dispatch); // Call the function to set up other listeners
   });
-  client.on('initFailed', ({ error }: { error?: any }) => {
+  client.on('initFailed', ({error}: {error?: any}) => {
     if (error) {
       console.error('Twilio client initialization failed:', error.message);
     } else {
@@ -84,7 +84,7 @@ const setupTwilioListeners = (dispatch: any): void => {
     }: {
       conversation: Conversation;
       updateReasons: ConversationUpdateReason[];
-    }) => { },
+    }) => {},
   );
 
   // Listen for message updates
@@ -96,7 +96,7 @@ const setupTwilioListeners = (dispatch: any): void => {
     }: {
       message: Message;
       updateReasons: MessageUpdateReason[];
-    }) => { },
+    }) => {},
   );
 
   // Listen for message updates
@@ -117,7 +117,7 @@ const setupTwilioListeners = (dispatch: any): void => {
     }: {
       participant: Participant;
       updateReasons: ParticipantUpdateReason[];
-    }) => { },
+    }) => {},
   );
 };
 
@@ -135,7 +135,6 @@ export const sendMessage = async (
   }
   return false;
 };
-
 
 export const sendMediaMessage = async (
   conversationSid: string,

@@ -31,6 +31,7 @@
   "name_required": "Name is required",
   "username_required": "User Name is required",
   "email_required": "Email is required",
+  "invalid_email": "Must be a valid email",
   "passwords_must_match": "Passwords must match",
   "password_min_length": "Password must be at least 6 characters",
   "password_required": "Password is required",
@@ -47,8 +48,8 @@
   "mark_as_unimportant_success": "This chat is marked as unimportant",
   "mark_as_important_failure": "Failed to mark as important. Please try again.",
   "mark_as_unimportant_failure": "Failed to mark as unimportant. Please try again.",
-  "magnolia_jewellers_login": "Magnolia Jewellers Login",
-  "magnolia_jewellers_register": "Magnolia Jewellers Sign Up",
+  "magnolia_jewellers_login": "Magnolia Jewellers",
+  "magnolia_jewellers_register": "Magnolia Jewellers",
   "magnolia_jewellers_forgot_password": "Magnolia Jewellers Forgot Password",
   "magnolia_jewellers_email_verification": "Magnolia Jewellers Email Verification",
   "magnolia_jewellers_reset_password": "Magnolia Jewellers Reset Password",
@@ -66,5 +67,9 @@
   "redirecting_to_sign_in": "Redirecting to sign in page in {{timeLeft}} second",
   "enter_your_group_name": "Enter your group name",
   "enter_phone_number": "Enter phone number",
-  "enter_your_message": "Enter your message"
+  "enter_your_message": "Enter your message",
+  "something_went_wrong": "Something went wrong. Please try again later.",
+  "mute_notification": "Mute Notification",
+  "mute_notification_success": "Mute notification successfully",
+  "unmute_notification_success": "Un-Mute notification successfully"
 }

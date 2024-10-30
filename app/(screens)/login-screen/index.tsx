@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {View} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {StatusBar, View} from 'react-native';
 import {Href, Link} from 'expo-router';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useForm, Control} from 'react-hook-form';
@@ -31,14 +31,14 @@ import LockSvg from '@/assets/svgs/password-lock-svg';
 import showToast from '@/app/components/toast';
 import AppCustomLogo from '@/app/components/app-custom-logo';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import messaging from '@react-native-firebase/messaging';
 import {styled} from 'nativewind';
-import * as Notifications from 'expo-notifications';
-import {registerForPushNotificationsAsync} from '@/app/index';
 
 type FormDataProps = {
   email: string;
   password: string;
   rememberMe?: boolean;
+  fcmToken?: string | null;
 };
 
 type AuthResponse = {
@@ -49,6 +49,7 @@ type AuthResponse = {
     is2FAEnabled: boolean;
   };
   type?: string;
+  fcmToken: string;
 };
 
 const schema = yup.object().shape({
@@ -66,37 +67,31 @@ const Login: React.FC = () => {
   const {activeTheme} = useTheme();
   const ns = i18n.language;
 
-  const [expoPushToken, setExpoPushToken] = useState('');
-  const [notification, setNotification] = useState<
-    Notifications.Notification | undefined
-  >(undefined);
+  const [fcmToken, setFcmToken] = useState<string | undefined>('');
 
-  const notificationListener = useRef<Notifications.Subscription>();
-  const responseListener = useRef<Notifications.Subscription>();
+  const getFcmPushToken = async () => {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    if (enabled) {
+      const fcmToken = await messaging().getToken();
+      setFcmToken(fcmToken);
+    } else {
+      console.log('Authorization status:', authStatus);
+    }
+  };
 
   useEffect(() => {
-    registerForPushNotificationsAsync()
-      .then((token?: string) => setExpoPushToken(token ?? ''))
-      .catch((error: any) => setExpoPushToken(`${error}`));
-
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener(notification => {
-        setNotification(notification);
-      });
-
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener(response => {
-        console.log(response);
-      });
-
-    return () => {
-      notificationListener.current &&
-        Notifications.removeNotificationSubscription(
-          notificationListener.current,
-        );
-      responseListener.current &&
-        Notifications.removeNotificationSubscription(responseListener.current);
+    const fetchFcmToken = async () => {
+      try {
+        await getFcmPushToken();
+      } catch (error) {
+        console.error('Error fetching FCM token:', error);
+      }
     };
+
+    fetchFcmToken();
   }, []);
 
   const {
@@ -133,15 +128,19 @@ const Login: React.FC = () => {
   }, [setValue]);
 
   const authenticateUser = useCallback(
-    async ({email, password}: FormDataProps): Promise<AuthResponse> => {
+    async ({
+      email,
+      password,
+      fcmToken,
+    }: FormDataProps & {fcmToken: string}): Promise<AuthResponse> => {
       const {data} = await axiosConfig.post<AuthResponse>(AUTH_API.LOGIN, {
         email,
         password,
-        notificationToken: expoPushToken,
+        fcmToken,
       });
       return data;
     },
-    [expoPushToken],
+    [],
   );
 
   const UserLogin: UseMutationResult<AuthResponse, unknown, FormDataProps> =
@@ -157,7 +156,7 @@ const Login: React.FC = () => {
 
   const onSubmit = useCallback(
     (formData: FormDataProps) => {
-      UserLogin.mutate(formData);
+      UserLogin.mutate({...formData, fcmToken: fcmToken});
     },
     [UserLogin],
   );
@@ -168,6 +167,7 @@ const Login: React.FC = () => {
 
   return (
     <SafeAreaView className={loginScreenStyles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="black" />
       <StyledKeyboardAwareScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{height: '100%'}}

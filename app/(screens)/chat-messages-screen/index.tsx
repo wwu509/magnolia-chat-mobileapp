@@ -75,9 +75,7 @@ const StyledKeyboardAwareScrollView = styled(KeyboardAwareScrollView);
 
 export default function ChatMessagesScreen() {
   const {activeTheme} = useTheme();
-
   const {id, name, important} = useLocalSearchParams<ChatListParamList>();
-
   const queryClient = useQueryClient();
 
   const dispatch = useDispatch();
@@ -106,10 +104,14 @@ export default function ChatMessagesScreen() {
   useEffect(() => {
     if (isFocused) {
       dispatch(setConversationSid(id));
-    } else {
-      dispatch(clearChatMessages());
     }
   }, [dispatch, isFocused, id]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearChatMessages());
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     if (textMsg.length <= 0) {
@@ -260,11 +262,7 @@ export default function ChatMessagesScreen() {
   });
 
   const handlePopUpMenu = (value: string) => {
-    if (
-      ['mark_as_important', 'mark_as_unimportant', 'remove_user'].includes(
-        value,
-      )
-    ) {
+    if (['mark_as_important', 'mark_as_unimportant'].includes(value)) {
       MarkAsImportantMutation.mutate({
         important: value === 'mark_as_important',
         conversationSid: id,
@@ -356,6 +354,37 @@ export default function ChatMessagesScreen() {
     });
   };
 
+  const unreadConversation = async ({
+    unread,
+    conversationSid,
+  }: {
+    unread: boolean;
+    conversationSid: string;
+  }): Promise<void> => {
+    await axiosConfig.put(`${CHAT_API.MARK_AS_UNREAD}${conversationSid}`, {
+      unread,
+    });
+  };
+
+  const UnreadConversationMutation: UseMutationResult<
+    void,
+    unknown,
+    {unread: boolean; conversationSid: string}
+  > = useMutation({
+    mutationFn: unreadConversation,
+    onSuccess: () => {},
+    onError: (error: APIAxiosError) => {
+      console.warn('Error: ', JSON.stringify(error?.response?.data, null, 2));
+    },
+  });
+
+  useEffect(() => {
+    return () => {
+      UnreadConversationMutation.mutate({unread: false, conversationSid: id});
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <SafeAreaView className="h-full">
       <StyledKeyboardAwareScrollView
@@ -403,8 +432,6 @@ export default function ChatMessagesScreen() {
                     />
                   </View>
                 )}
-                // onEndReached={paginateChatData}
-                // onEndReachedThreshold={0.2}
               />
             </View>
           </View>

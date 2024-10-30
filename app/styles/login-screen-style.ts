@@ -1,5 +1,5 @@
 export const loginScreenStyles = {
-  container: 'h-full p-4 items-center',
+  container: 'h-full bg-white items-center',
   title: 'text-2xl font-bold mb-2',
   description: 'text-base mb-4',
   logoContainer: 'flex justify-center items-center my-8',

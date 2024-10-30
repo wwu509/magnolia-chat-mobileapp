@@ -1,11 +1,10 @@
 import React, {useCallback} from 'react';
-import {View, Pressable} from 'react-native';
+import {View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useForm, Control} from 'react-hook-form';
 import * as yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {loginScreenStyles} from '@/app/styles/login-screen-style';
-import BackSvg from '@/assets/svgs/arrow-left-svg';
 import CustomButton from '@/app/components/custom-button';
 import CustomFormField from '@/app/components/custom-form-field';
 import globalStyle from '@/app/styles/global-style';
@@ -19,10 +18,13 @@ import EmailSvg from '@/assets/svgs/sms-svg';
 import LockSvg from '@/assets/svgs/password-lock-svg';
 import UserNameSvg from '@/assets/svgs/user-svg';
 import showToast from '@/app/components/toast';
-import AppCustomLogo from '@/app/components/app-custom-logo';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import KeyboardAvoidingView from '@/app/components/keyboard-avoiding-view';
 import {styled} from 'nativewind';
+import BackButtonWithTitle from '@/app/components/header/back-button';
+import forgotPasswordStyles from '@/app/styles/forgot-password-style';
+import CustomText from '@/app/components/custom-text';
+import {useTheme} from '@/app/components/theme-context';
 
 type FormDataProps = {
   name: string;
@@ -67,6 +69,7 @@ const Register: React.FC = () => {
   const userName = watch('userName');
   const email = watch('email');
   const password = watch('password');
+  const {activeTheme} = useTheme();
 
   const authenticateUser = useCallback(
     async ({
@@ -109,48 +112,46 @@ const Register: React.FC = () => {
     <StyledKeyboardAwareScrollView
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{height: '100%'}}
-      className={'w-full'}>
+      className={'w-full bg-white'}>
       <KeyboardAvoidingView>
         <SafeAreaView className={loginScreenStyles.container}>
-          <Pressable
-            testID={TEST_IDS.BUTTON.BACK_ICON}
-            accessibilityLabel={TEST_IDS.BUTTON.BACK_ICON}
-            onPress={navigateBack}
-            className="w-[100%] h-[3%]">
-            <BackSvg />
-          </Pressable>
+          <BackButtonWithTitle title="Register" />
+          <CustomText
+            title="magnolia_jewellers_register"
+            classname={`${forgotPasswordStyles.logoTextRegister} ${activeTheme.text}`}
+            testID={TEST_IDS.TEXT.WELCOME_BACK}
+          />
           <View className={globalStyle.responsiveStyle}>
-            <AppCustomLogo
-              text={'magnolia_jewellers_register'}
-              testID={TEST_IDS.TEXT.WELCOME_BACK}
-            />
             <CustomFormField
-              control={control as unknown as Control}
               name="name"
+              label="Name"
+              control={control as unknown as Control}
               placeholder="enter_your_name"
               errors={errors}
               autoCapitalize="none"
               customIcon={UserNameSvg}
               containerStyle={'mb-3'}
-              labelID={TEST_IDS.TEXT.ENTER_YOUR_EMAIL}
-              errorID={TEST_IDS.ERROR.ENTER_YOUR_EMAIL}
-              inputID={TEST_IDS.INPUT.ENTER_YOUR_EMAIL}
+              labelID={TEST_IDS.TEXT.ENTER_YOUR_NAME}
+              errorID={TEST_IDS.ERROR.ENTER_YOUR_NAME}
+              inputID={TEST_IDS.INPUT.ENTER_YOUR_NAME}
             />
             <CustomFormField
               control={control as unknown as Control}
               name="userName"
+              label="UserName"
               placeholder="enter_your_username"
               errors={errors}
               autoCapitalize="none"
               customIcon={UserNameSvg}
               containerStyle={'mb-3'}
-              labelID={TEST_IDS.TEXT.ENTER_YOUR_EMAIL}
-              errorID={TEST_IDS.ERROR.ENTER_YOUR_EMAIL}
-              inputID={TEST_IDS.INPUT.ENTER_YOUR_EMAIL}
+              labelID={TEST_IDS.TEXT.ENTER_YOUR_USERNAME}
+              errorID={TEST_IDS.ERROR.ENTER_YOUR_USERNAME}
+              inputID={TEST_IDS.INPUT.ENTER_YOUR_USERNAME}
             />
             <CustomFormField
               control={control as unknown as Control}
               name="email"
+              label="Email"
               placeholder="enter_your_email"
               inputMode="email"
               errors={errors}
@@ -164,6 +165,7 @@ const Register: React.FC = () => {
             <CustomFormField
               control={control as unknown as Control}
               name="password"
+              label="Password"
               placeholder="enter_your_password"
               secureTextEntry
               errors={errors}

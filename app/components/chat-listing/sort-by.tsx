@@ -12,9 +12,9 @@ const SortBy: React.FC<SortByProps> = ({handleSearch, search}) => {
   const [value, setValue] = useState('All');
 
   return (
-    <View className="flex-row justify-between mt-5 ml-2.5 w-full">
+    <View className="flex-row justify-between pb-4 mt-4 mr-2 w-full">
       <View className="grow w-1/2">
-        <Text className="text-xs leading-none text-black text-opacity-70">
+        <Text className="text-base font-medium leading-none text-black text-opacity-70">
           Sort by
         </Text>
       </View>
@@ -22,12 +22,14 @@ const SortBy: React.FC<SortByProps> = ({handleSearch, search}) => {
         <Root>
           <Trigger>
             <View className="flex-row justify-center items-center">
-              <Text className="mr-1">{value}</Text>
-              <MaterialCommunityIcons
-                color="blue"
-                size={12}
-                name="arrow-down"
-              />
+              <Text className="mr-1 font-medium	 text-base">{value}</Text>
+              <View className="bg-black h-5 w-5 items-center justify-center rounded-full">
+                <MaterialCommunityIcons
+                  color="white"
+                  size={15}
+                  name="arrow-down"
+                />
+              </View>
             </View>
           </Trigger>
           <Content

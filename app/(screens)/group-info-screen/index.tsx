@@ -19,8 +19,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {useLocalSearchParams} from 'expo-router';
-
-import {navigateBack} from '@/app/helper/navigation';
 import {CHAT_API} from '@/app/constants/api-routes';
 import {
   setGroupInfo,
@@ -30,13 +28,12 @@ import {
 } from '@/app/store/group-info-slice';
 import {useTheme} from '@/app/components/theme-context';
 import {APIAxiosError} from '@/app/constants';
-
 import CustomText from '@/app/components/custom-text';
 import GroupLogo from '@/assets/images/group_default.png';
 import UserDefault from '@/assets/images/user_default.jpg';
-import BackSvg from '@/assets/svgs/arrow-left-svg';
 import showToast from '@/app/components/toast';
 import axiosConfig from '@/app/helper/axios-config';
+import BackButtonWithTitle from '@/app/components/header/back-button';
 
 type RemoveUserParams = {
   userId: string;
@@ -45,22 +42,16 @@ type RemoveUserParams = {
 
 const UserListScreen = () => {
   const {activeTheme} = useTheme();
-
   const {conversationSid, isOwner} = useLocalSearchParams<{
     conversationSid: string;
     isOwner: string;
   }>();
-
   const isAdmin: boolean = JSON.parse(isOwner)?.isOwner;
-
   const {groupInfo} = useSelector(
     (state: {groupInfo: GroupInfoState}) => state.groupInfo,
   );
-
   const dispatch = useDispatch();
-
   const queryClient = useQueryClient();
-
   const [isRemoveModalVisible, setIsRemoveModalVisible] = useState(false);
   const [userToRemove, setUserToRemove] = useState<{
     userName: string;
@@ -71,7 +62,6 @@ const UserListScreen = () => {
     const {data} = await axiosConfig.get(
       `${CHAT_API.GROUP_INFO}${conversationSid}`,
     );
-
     return data;
   }, []);
 
@@ -92,7 +82,6 @@ const UserListScreen = () => {
         message: string;
         conversationSid: string;
       }>(`${CHAT_API.REMOVE_USER}${params?.conversationSid}/${params?.userId}`);
-
       return data;
     },
     [],
@@ -162,7 +151,7 @@ const UserListScreen = () => {
         <Image source={UserDefault} className="w-10 h-10 rounded-full mr-3" />
         <CustomText
           title={item?.name || item?.phoneNumber}
-          classname="text-lg"
+          classname="text-base"
         />
         {item?.isOwner && (
           <View className="ml-2 flex-row items-center">
@@ -178,13 +167,9 @@ const UserListScreen = () => {
       {isAdmin && !item?.isOwner && item?.identity && (
         <View className="flex-row space-x-2">
           <Pressable
-            className="bg-red-500 rounded-full p-2"
+            className="bg-red-500 rounded-full p-1"
             onPress={() => {
               showRemoveConfirmation(item?.identity, item?.name);
-              // handleRemoveUser(
-              //   item?.identity || item.phoneNumber,
-              //   conversationSid,
-              // );
             }}>
             <MaterialCommunityIcons name="close" size={20} color="white" />
           </Pressable>
@@ -203,12 +188,8 @@ const UserListScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="p-5">
-        <Pressable
-          onPress={navigateBack}
-          className="w-full h-12 justify-center">
-          <BackSvg />
-        </Pressable>
+      <BackButtonWithTitle title="Group info" />
+      <View className="px-4">
         <ScrollView
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled
@@ -228,7 +209,7 @@ const UserListScreen = () => {
                   className="w-24 h-24 rounded-full mb-5"
                 />
                 <CustomText
-                  classname="text-2xl font-bold mb-1"
+                  classname="text-xl font-bold mb-1"
                   title={groupInfo?.conversation.friendlyName}
                 />
               </View>

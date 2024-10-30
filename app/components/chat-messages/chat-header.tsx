@@ -1,13 +1,10 @@
-import {View, Text, Pressable} from 'react-native';
+import {View} from 'react-native';
 import {Root, Content, Trigger, Item, ItemTitle} from 'zeego/dropdown-menu';
 import Entypo from '@expo/vector-icons/Entypo';
-
-import {TEST_IDS} from '@/app/constants/test-ids/chat-screen';
-import {navigateBack} from '@/app/helper/navigation';
-
-import BackSvg from '@/assets/svgs/arrow-left-svg';
 import React from 'react';
 import {translate} from '@/app/utils/i18n';
+import BackButtonWithTitle from '../header/back-button';
+import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
 
 type ChatHeaderProps = {
   name: string;
@@ -28,22 +25,21 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   const importantTag = important ? 'mark_as_unimportant' : 'mark_as_important';
   const infoTag = isGroup ? 'group_info' : 'view_contact_info';
   return (
-    <View className="flex-row bg-black justify-between items-center h-full mx-5 rounded-lg">
-      <Pressable
-        testID={TEST_IDS.BUTTON.BACK_ICON}
-        accessibilityLabel={TEST_IDS.BUTTON.BACK_ICON}
-        onPress={navigateBack}
-        className="w-[10%] h-[100%] justify-center items-center">
-        <BackSvg fill="white" height={20} width={20} />
-      </Pressable>
-      <Text className="text-center text-white">{name ?? 'Anonymous Name'}</Text>
-      <View className="w-[10%]">
+    <View className="flex-row bg-white items-center h-14 ">
+      <View className="w-3/4">
+        <BackButtonWithTitle
+          navigateToPage={NAVIGATION_ROUTES.HOME}
+          title={name ?? 'Anonymous Name'}
+        />
+      </View>
+      <View className="w-1/4 bg-white flex-row-reverse	">
         <Root>
           <Trigger>
             <Entypo
-              color={'white'}
+              color={'black'}
               size={22}
-              style={{width: '100%', paddingLeft: 10}}
+              className="w-full"
+              style={{width: '100%', padding: 10}}
               name={'dots-three-vertical'}
             />
           </Trigger>
@@ -94,16 +90,6 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
                   onPointerLeaveCapture={() => {}}>
                   <ItemTitle>{translate('remove_user')}</ItemTitle>
                 </Item>
-                {/* <Item
-                  key="mute_chat"
-                  placeholder={''}
-                  onSelect={() => {
-                    handleActions('mute_chat');
-                  }}
-                  onPointerEnterCapture={() => {}}
-                  onPointerLeaveCapture={() => {}}>
-                  <ItemTitle>{translate('mute_chat')}</ItemTitle>
-                </Item> */}
               </>
             )}
           </Content>

@@ -149,6 +149,7 @@ const OTPScreen: React.FC = () => {
                 testID={`${TEST_IDS.INPUT.ENTER_YOUR_OTP}_${index}`}
                 accessibilityLabel={`${TEST_IDS.INPUT.ENTER_YOUR_OTP}_${index}`}
                 key={index}
+                placeholderTextColor={'gray'}
                 value={digit}
                 onChangeText={text => handleChange(text, index)}
                 onKeyPress={() => handleKeyPress(index)}
