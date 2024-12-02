@@ -27,7 +27,8 @@ import CustomText from '@/app/components/custom-text';
 import {useTheme} from '@/app/components/theme-context';
 
 type FormDataProps = {
-  name: string;
+  first_name: string;
+  last_name: string;
   userName: string;
   email: string;
   password: string;
@@ -44,7 +45,8 @@ type AuthResponse = {
 };
 
 const schema = yup.object().shape({
-  name: yup.string().required('name_required'),
+  first_name: yup.string().required('name_required'),
+  last_name: yup.string().required('name_required'),
   userName: yup.string().required('username_required'),
   email: yup.string().email('invalid_email').required('email_required'),
   password: yup
@@ -65,7 +67,8 @@ const Register: React.FC = () => {
     resolver: yupResolver(schema),
   });
 
-  const name = watch('name');
+  const first_name = watch('first_name');
+  const last_name = watch('last_name');
   const userName = watch('userName');
   const email = watch('email');
   const password = watch('password');
@@ -75,15 +78,17 @@ const Register: React.FC = () => {
     async ({
       email,
       password,
-      name,
+      first_name,
+      last_name,
       userName,
     }: FormDataProps): Promise<AuthResponse> => {
       const {data} = await axiosConfig.post<AuthResponse>(AUTH_API.REGISTER, {
-        name,
+        first_name,
+        last_name,
         userName,
         email,
         password,
-        role: 'super_admin',
+        role: 'agent',
       });
       return data;
     },
@@ -123,10 +128,23 @@ const Register: React.FC = () => {
           />
           <View className={globalStyle.responsiveStyle}>
             <CustomFormField
-              name="name"
-              label="Name"
+              name="first_name"
+              label="First Name"
               control={control as unknown as Control}
-              placeholder="enter_your_name"
+              placeholder="enter_your_first_name"
+              errors={errors}
+              autoCapitalize="none"
+              customIcon={UserNameSvg}
+              containerStyle={'mb-3'}
+              labelID={TEST_IDS.TEXT.ENTER_YOUR_NAME}
+              errorID={TEST_IDS.ERROR.ENTER_YOUR_NAME}
+              inputID={TEST_IDS.INPUT.ENTER_YOUR_NAME}
+            />
+            <CustomFormField
+              name="last_name"
+              label="Last Name"
+              control={control as unknown as Control}
+              placeholder="enter_your_last_name"
               errors={errors}
               autoCapitalize="none"
               customIcon={UserNameSvg}
@@ -179,7 +197,9 @@ const Register: React.FC = () => {
             <CustomButton
               title={'register'}
               onPress={handleSubmit(onSubmit)}
-              disabled={!name || !userName || !email || !password}
+              disabled={
+                !first_name || !last_name || !userName || !email || !password
+              }
               loading={UserLogin?.isPending}
               testID={TEST_IDS.BUTTON.LOGIN}
             />

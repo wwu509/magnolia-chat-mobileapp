@@ -5,9 +5,9 @@ import {
   getAccessToken,
   setAccessToken,
 } from '../utils/access-token-data';
-import {AUTH_API} from '../constants/api-routes';
-import {generateHmac} from './request-signature';
-import {NativeModules} from 'react-native';
+import { AUTH_API } from '../constants/api-routes';
+import { generateHmac } from './request-signature';
+import { NativeModules } from 'react-native';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const CLIENT_ID = process.env.EXPO_PUBLIC_SIGNATURE_CLIENT_ID;
@@ -40,7 +40,11 @@ axiosConfig.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config;
-    if (error?.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error?.response?.status === 401 &&
+      !originalRequest._retry &&
+      error?.response?.data?.message === 'Unauthorized'
+    ) {
       originalRequest._retry = true;
       try {
         const _token = await getAccessToken();
@@ -75,7 +79,7 @@ axiosConfig.interceptors.request.use(config => {
   const url = config?.url;
   const nonce = Crypto.randomUUID();
   const timestamp = new Date().getTime();
-  const messageParams = {url, body, nonce, timestamp};
+  const messageParams = { url, body, nonce, timestamp };
   const message = JSON.stringify(messageParams);
 
   config.headers['x-signature'] = generateHmac(message);

@@ -43,6 +43,7 @@ const MessageList: React.FC = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
   } = useInfiniteQuery<ChatListResponse>({
     queryKey: ['chats', searchText, filter, 5],
     queryFn: ({pageParam, queryKey}) =>
@@ -123,10 +124,12 @@ const MessageList: React.FC = () => {
             renderItem={renderItem}
             keyExtractor={keyExtractor}
             showsVerticalScrollIndicator={false}
-            className="w-full"
+            className="w-full h-full"
             onEndReachedThreshold={0.5}
             onEndReached={handleLoadMore}
             ListFooterComponent={renderFooter}
+            onRefresh={refetch}
+            refreshing={false}
           />
         )}
       </View>

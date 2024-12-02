@@ -3,9 +3,7 @@ import {useState, useEffect} from 'react';
 import {getAccessToken} from './utils/access-token-data';
 import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
 
-
 export default function Index() {
-
   const [isAuth, setIsAuth] = useState<boolean | null>(null);
 
   useEffect(() => {

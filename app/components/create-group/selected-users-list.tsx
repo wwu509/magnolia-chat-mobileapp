@@ -14,17 +14,22 @@ type SelectedUsersListProps = {
 const SelectedUsersList = ({users}: SelectedUsersListProps) => {
   const {activeTheme} = useTheme();
 
-  const renderItem = ({item: user}: {item: ConversationRecord}) => (
-    <View key={user.participantSid} className="mr-2.5 items-center pl-2">
-      <Image
-        source={user?.conversationUserName ? HomeUser : UserDefault}
-        className="w-[64] h-[64] rounded-full"
-      />
-      <Text className={`${activeTheme.text} mt-1.5`}>
-        {user.conversationFriendlyName}
-      </Text>
-    </View>
-  );
+  const renderItem = ({item: user}: {item: ConversationRecord}) => {
+    const conversationUserName = `${user?.firstName} ${user?.lastName}`;
+    return (
+      <View key={user.participantSid} className="mr-2.5 items-center pl-2">
+        <Image
+          source={user?.conversationUserName ? HomeUser : UserDefault}
+          className="w-[64] h-[64] rounded-full"
+        />
+        <Text className={`${activeTheme.text} mt-1.5`}>
+          {user?.firstName
+            ? conversationUserName
+            : user.conversationFriendlyName}
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <FlatList

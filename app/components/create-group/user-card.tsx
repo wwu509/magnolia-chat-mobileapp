@@ -34,6 +34,8 @@ const UserCard = ({
 }: UserCardProps) => {
   const {activeTheme} = useTheme();
 
+  const conversationUserName = `${user?.firstName} ${user?.lastName}`;
+
   const {watch, control, setValue} = useForm<FormDataProps>({
     resolver: yupResolver(schema),
   });
@@ -65,7 +67,9 @@ const UserCard = ({
           className="w-[40] h-[40] rounded-full mr-4"
         />
         <Text className={`flex-1 ${activeTheme.text}`}>
-          {user.conversationFriendlyName}
+          {user?.firstName
+            ? conversationUserName
+            : user.conversationFriendlyName}
         </Text>
         <View
           className={`w-6 h-6 rounded-full ${activeTheme.primaryColor} justify-center items-center`}>

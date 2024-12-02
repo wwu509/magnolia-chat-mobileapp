@@ -7,12 +7,14 @@ type BackButtonWithTitleProps = {
   title: string;
   noShadow?: boolean;
   navigateToPage?: string;
+  backNavigate?: () => void;
 };
 
 const BackButtonWithTitle: React.FC<BackButtonWithTitleProps> = ({
   title,
   noShadow,
   navigateToPage,
+  backNavigate,
 }) => {
   return (
     <View
@@ -22,11 +24,15 @@ const BackButtonWithTitle: React.FC<BackButtonWithTitleProps> = ({
         size={25}
         color="black"
         onPress={() =>
-          navigateToPage ? navigateTo(navigateToPage) : navigateBack()
+          backNavigate
+            ? backNavigate()
+            : navigateToPage
+              ? navigateTo(navigateToPage)
+              : navigateBack()
         }
         className="absolute left-4"
       />
-      <Text className="text-lg  pl-4 font-medium">{title}</Text>
+      <Text className="text-lg pl-4 font-medium">{title}</Text>
     </View>
   );
 };

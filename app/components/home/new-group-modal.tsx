@@ -1,8 +1,10 @@
 import React from 'react';
-import {Modal, Pressable} from 'react-native';
+import {View, Modal, Pressable} from 'react-native';
 import * as yup from 'yup';
 import {Control, FieldErrors, useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
 import CustomFormField from '@/app/components/custom-form-field';
 import {TEST_IDS} from '@/app/constants/test-ids/home-screen';
 import CustomButton from '@/app/components/custom-button';
@@ -60,15 +62,20 @@ const CustomModal: React.FC<CustomModalProps> = ({
       transparent
       animationType="fade"
       onRequestClose={handleClose}>
-      <Pressable
-        onPress={handleClose}
-        className="flex-1 justify-center items-center bg-black/50">
+      <View className="flex-1 justify-center items-center bg-black/50">
         <Pressable
           onPress={() => {}}
-          className="bg-white rounded-3xl p-8 items-center shadow-lg w-[92%]">
+          className="bg-white rounded-3xl p-8 pt-5 items-center shadow-lg w-[92%]">
+          <View className="w-[100%] items-center pb-5">
+            <Pressable
+              className="bg-red-500 rounded-full p-1"
+              onPress={handleClose}>
+              <MaterialCommunityIcons name="close" size={20} color="white" />
+            </Pressable>
+          </View>
           <CustomFormField
             control={control as unknown as Control}
-            containerStyle="mb-4 w-[100%]"
+            containerStyle="mb-1 w-[100%]"
             inputStyle="text-base w-[88%]"
             name="name"
             placeholder={'enter_your_group_name'}
@@ -86,7 +93,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
             testID={TEST_IDS.BUTTON.SUBMIT}
           />
         </Pressable>
-      </Pressable>
+      </View>
     </Modal>
   );
 };

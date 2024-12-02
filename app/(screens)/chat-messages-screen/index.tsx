@@ -26,6 +26,7 @@ import {
   ParticipantDetails,
   setChatMessages,
   setConversationSid,
+  setIsMediaUpload,
   setStaffMembers,
   StaffMemberState,
 } from '@/app/store/chat-messages-slice';
@@ -41,7 +42,12 @@ import ChatHeader from '@/app/components/chat-messages/chat-header';
 import showToast from '@/app/components/toast';
 import {translate} from '@/app/utils/i18n';
 import {APIAxiosError} from '@/app/constants';
-import {pickImage, pickVideos} from '@/app/helper/media-picker';
+import {
+  compressImage,
+  getFileSizeInMB,
+  pickImage,
+  pickVideos,
+} from '@/app/helper/media-picker';
 import {styled} from 'nativewind';
 import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
 import {navigateTo} from '@/app/helper/navigation';
@@ -49,6 +55,7 @@ import UserTypeModal from '@/app/components/chat-messages/user-type-modal';
 import StaffListModal from '@/app/components/chat-messages/staff-list-modal';
 import {ConversationRecord} from '@/app/store/create-group-slice';
 import CustomChatModal from '@/app/components/create-group/new-chat-group-modal';
+import MediaUploadConfirmation from '@/app/components/chat-messages/media-upload-modal';
 
 type ChatListParamList = {
   name: string;
@@ -63,6 +70,14 @@ type MarkAsImportantRequest = {
 
 type MarkAsImportantResponse = {
   message: string;
+};
+
+type UploadVideoRequest = {
+  file: object;
+};
+
+type UploadVideoResponse = {
+  url: string;
 };
 
 const NavigateStates = {
@@ -85,10 +100,12 @@ export default function ChatMessagesScreen() {
     conversationType,
     staffMembers,
     isOwner,
+    conversationParticipants,
+    mutedUsers,
+    isMediaUpload,
   } = useSelector((state: ChatMessageRootState) => state.chatMessages);
 
   const isFocused = useIsFocused();
-
   const [FileMsg, setFileMsg] = useState<boolean | string>(false);
   const [textMsg, settextMsg] = useState('');
   const [cameraModalVisible, setCameraModalVisible] = useState(false);
@@ -100,12 +117,24 @@ export default function ChatMessagesScreen() {
   const [isUserTypeModalVisible, setIsUserTypeModalVisible] = useState(false);
   const [isStaffListModalVisible, setIsStaffListModalVisible] = useState(false);
   const [chatModalVisible, setChatModalVisible] = useState(false);
+  const [IsParticipant, setIsParticipant] = useState(false);
+  const [saveMedia, setSaveMedia] = useState<any>();
+  const [isMessageSend, setIsMessageSend] = useState<boolean>(false);
 
   useEffect(() => {
     if (isFocused) {
       dispatch(setConversationSid(id));
     }
-  }, [dispatch, isFocused, id]);
+  }, [dispatch, isFocused, id, isMediaUpload]);
+
+  useEffect(() => {
+    if (conversationParticipants?.length > 0) {
+      findParticipant();
+    }
+    return () => {
+      setIsParticipant(false);
+    };
+  }, [conversationParticipants]);
 
   useEffect(() => {
     return () => {
@@ -119,12 +148,88 @@ export default function ChatMessagesScreen() {
     }
   }, [textMsg]);
 
-  const sendMsg = () => {
-    if (textMsg.length > 0) {
-      sendTextMsg();
-      settextMsg('');
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries({queryKey: ['aboutMe']});
+    queryClient.invalidateQueries({queryKey: ['chats']});
+  };
+
+  const findParticipant = async () => {
+    const participant = await conversationParticipants?.find(
+      (participant: any) => participant?.user?.userName === user?.userName,
+    );
+    if (!participant) {
+      setIsParticipant(false);
+    } else {
+      setIsParticipant(true);
     }
   };
+
+  const sendMsg = (participant: any) => {
+    if (textMsg.length > 0) {
+      if (participant) {
+        setIsMessageSend(true);
+        sendTextMsg();
+        settextMsg('');
+      } else {
+        addToChat('text');
+      }
+    }
+  };
+
+  const addToChat = async (type: string) => {
+    try {
+      const body = {
+        identity: user?.userName,
+        chatType: conversationType,
+      };
+      const url = CHAT_API.ADD_USER_TO_CHAT;
+      const {data} = await axiosConfig.post(`${url}${id}`, body);
+      if (data?.accountSid) {
+        if (type === 'text') {
+          setIsParticipant(true);
+          await sendTextMsg();
+          settextMsg('');
+        } else {
+          setIsParticipant(true);
+          await sendFileMsgs(saveMedia);
+          setSaveMedia(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error adding user to chat:', error);
+    }
+  };
+
+  const uploadVideo = async ({
+    file,
+  }: UploadVideoRequest): Promise<UploadVideoResponse> => {
+    const formData = new FormData();
+    formData.append('file', file as any);
+    const {data} = await axiosConfig.post<UploadVideoResponse>(
+      `${CHAT_API.TWILIO_UPLOAD_MEDIA}`,
+      formData,
+      {
+        headers: {
+          Accept: '*/*',
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    );
+
+    return data;
+  };
+
+  const UploadVideoMutation: UseMutationResult<
+    UploadVideoResponse,
+    unknown,
+    UploadVideoRequest
+  > = useMutation({
+    mutationFn: uploadVideo,
+    onSuccess: async (data: UploadVideoResponse) => {
+      await sendMessage(id, data?.url, user, true);
+    },
+    onError: () => {},
+  });
 
   const sendFileMsgs = async (image: ImagePicker.ImagePickerAsset) => {
     if (image) {
@@ -132,17 +237,28 @@ export default function ChatMessagesScreen() {
       if (message) {
         dispatch(addMessage(message));
       }
-      await sendMediaMessage(id, image);
-      queryClient.invalidateQueries({queryKey: ['aboutMe']});
-      queryClient.invalidateQueries({queryKey: ['chats']});
+
+      if (image?.type === 'video') {
+        UploadVideoMutation.mutate({
+          file: {
+            uri: image?.uri,
+            type: image?.mimeType,
+            name: `magnolia-video.${image?.mimeType?.split('/')?.[1] || 'mp4'}`,
+          },
+        });
+      } else {
+        await sendMediaMessage(id, image, user);
+      }
+
+      invalidateQueries();
     }
   };
 
   const sendTextMsg = async () => {
-    await sendMessage(id, textMsg);
+    await sendMessage(id, textMsg, user);
+    setIsMessageSend(false);
     Keyboard.dismiss();
-    queryClient.invalidateQueries({queryKey: ['aboutMe']});
-    queryClient.invalidateQueries({queryKey: ['chats']});
+    invalidateQueries();
   };
 
   const updateTyping = async (text: string) => {
@@ -160,12 +276,15 @@ export default function ChatMessagesScreen() {
     return data;
   }, []);
 
-  const {data: chatMessages, isLoading: isChatMessagesLoading} =
-    useQuery<ChatMessageState>({
-      enabled: !!id,
-      queryKey: ['chatMessages', id],
-      queryFn: ({queryKey}) => getChatMessages(queryKey[1] as string),
-    });
+  const {
+    data: chatMessages,
+    isLoading: isChatMessagesLoading,
+    refetch,
+  } = useQuery<ChatMessageState>({
+    enabled: !!id,
+    queryKey: ['chatMessages', id],
+    queryFn: ({queryKey}) => getChatMessages(queryKey[1] as string),
+  });
 
   useEffect(() => {
     if (chatMessages) {
@@ -201,17 +320,30 @@ export default function ChatMessagesScreen() {
     setSelectedMedia('');
   };
 
-  const handleActions = (item: {value: string}) => {
+  const handleActions = async (item: {value: string}) => {
     if (item?.value === 'camera') {
       setCameraModalVisible(true);
     } else if (item?.value === 'gallery') {
       pickImage({
         setModalVisible: setCameraModalVisible,
-        handleReslut: sendFileMsgs,
+        handleReslut: handleCameraPicker,
+        onStart: () => {
+          dispatch(setIsMediaUpload(true));
+        },
       });
     } else {
-      pickVideos({handleReslut: sendFileMsgs});
+      await pickVideos({
+        handleReslut: handleCameraPicker,
+        onStart: () => {
+          dispatch(setIsMediaUpload(true));
+        },
+      });
     }
+  };
+
+  const handleCameraPicker = async (item: ImagePicker.ImagePickerAsset) => {
+    setSaveMedia(item);
+    dispatch(setIsMediaUpload(true));
   };
 
   const markAsImportant = async ({
@@ -249,7 +381,6 @@ export default function ChatMessagesScreen() {
       queryClient.invalidateQueries({queryKey: ['chats']});
     },
     onError: (error: APIAxiosError, requestData: MarkAsImportantRequest) => {
-      console.warn('Error: ', JSON.stringify(error?.response?.data, null, 2));
       showToast(
         error?.response?.data?.message ||
           translate(
@@ -270,7 +401,11 @@ export default function ChatMessagesScreen() {
     } else if (value in NavigateStates) {
       navigateTo(NavigateStates[value as keyof typeof NavigateStates], {
         conversationSid: id,
-        isOwner: JSON.stringify({isOwner}),
+        isOwner: JSON.stringify({
+          isOwner:
+            isOwner ||
+            user?.userRolePermissions?.[0]?.role?.name === 'super_admin',
+        }),
       });
     } else if (value === 'add_user') {
       setIsUserTypeModalVisible(true);
@@ -287,6 +422,16 @@ export default function ChatMessagesScreen() {
       setChatModalVisible(true);
     }
     // Handle 'customers' case if needed
+  };
+
+  const handleMediaUpload = async () => {
+    dispatch(setIsMediaUpload(false));
+    if (IsParticipant) {
+      await sendFileMsgs(saveMedia);
+      setSaveMedia(null);
+    } else {
+      addToChat('media');
+    }
   };
 
   const addToGroup = async ({
@@ -332,7 +477,6 @@ export default function ChatMessagesScreen() {
       });
     },
     onError: (error: APIAxiosError) => {
-      console.warn('Error: ', JSON.stringify(error?.response?.data, null, 2));
       showToast(
         error?.response?.data?.message ||
           translate('mark_as_important_failure'),
@@ -373,9 +517,7 @@ export default function ChatMessagesScreen() {
   > = useMutation({
     mutationFn: unreadConversation,
     onSuccess: () => {},
-    onError: (error: APIAxiosError) => {
-      console.warn('Error: ', JSON.stringify(error?.response?.data, null, 2));
-    },
+    onError: () => {},
   });
 
   useEffect(() => {
@@ -395,9 +537,16 @@ export default function ChatMessagesScreen() {
           <ChatHeader
             name={name}
             handleActions={handlePopUpMenu}
+            handleBackNavigation={() => {
+              navigateTo(NAVIGATION_ROUTES.HOME);
+              invalidateQueries();
+            }}
             important={isChatImportant}
             conversationType={conversationType}
-            isOwner={isOwner}
+            isOwner={
+              isOwner ||
+              user?.userRolePermissions?.[0]?.role?.name === 'super_admin'
+            }
           />
         </View>
         {chatMessagesData?.length > 0 ? (
@@ -427,6 +576,8 @@ export default function ChatMessagesScreen() {
                           index={index}
                           username={user?.userName ?? ''}
                           onMediaPress={handleMediaPress}
+                          mutedUsers={mutedUsers}
+                          refetchMethod={refetch}
                         />
                       )}
                     />
@@ -450,14 +601,43 @@ export default function ChatMessagesScreen() {
           <SafeAreaView className="h-full w-full">
             <CameraLaunch
               setVisible={setCameraModalVisible}
-              onHandleGallery={pickImage}
+              onHandleGallery={() => {
+                pickImage({
+                  setModalVisible: setCameraModalVisible,
+                  handleReslut: handleCameraPicker,
+                  onStart: () => {
+                    dispatch(setIsMediaUpload(true));
+                  },
+                });
+              }}
               getCameraImage={async (photo: any, filename: string) => {
-                const image = {
-                  ...photo,
-                  fileName: filename,
-                  mimeType: `image/${photo?.uri?.split('.').pop().split(/\#|\?/)?.[0]}`,
-                };
-                await sendFileMsgs(image);
+                dispatch(setIsMediaUpload(true));
+                const fileInfo: any = await compressImage(photo?.uri);
+                const fileMimeType: string = fileInfo?.uri
+                  .split('.')
+                  .pop()
+                  ?.toLowerCase();
+                const fileSizeMB = getFileSizeInMB(fileInfo?.size as number);
+
+                if (fileSizeMB > 5) {
+                  showToast('Image size is greater than 5MB');
+                  dispatch(setIsMediaUpload(false));
+                } else if (
+                  !['jpeg', 'jpg', 'gif', 'png'].includes(fileMimeType || '')
+                ) {
+                  showToast(
+                    'Only MPEG, MP4, QuickTime, WebM, 3GPP, H261, H263, and H264 video formats are supported',
+                  );
+                  dispatch(setIsMediaUpload(false));
+                } else {
+                  const image = {
+                    ...photo,
+                    fileName: filename,
+                    mimeType: `image/${fileMimeType}`,
+                    uri: fileInfo?.uri,
+                  };
+                  setSaveMedia(image);
+                }
               }}
             />
           </SafeAreaView>
@@ -476,14 +656,30 @@ export default function ChatMessagesScreen() {
           />
         )}
         <View className="h-[9%]">
-          <ChatInput
-            handleActions={handleActions}
-            sendMsg={sendMsg}
-            updateTyping={updateTyping}
-            textMsg={textMsg}
-            FileMsg={FileMsg}
-          />
+          {mutedUsers?.includes(user?.id ?? 0) ? (
+            <View className="w-full h-full items-center justify-center bg-stone-200">
+              <Text className="text-lg">You are muted in this chat.</Text>
+            </View>
+          ) : (
+            <ChatInput
+              handleActions={handleActions}
+              sendMsg={() => sendMsg(IsParticipant)}
+              updateTyping={updateTyping}
+              textMsg={textMsg}
+              FileMsg={FileMsg}
+              isMessageSend={isMessageSend}
+            />
+          )}
         </View>
+        <MediaUploadConfirmation
+          isVisible={isMediaUpload}
+          onClose={() => {
+            dispatch(setIsMediaUpload(false));
+            setSaveMedia(null);
+          }}
+          onHandleUpload={handleMediaUpload}
+          media={saveMedia}
+        />
         <UserTypeModal
           isVisible={isUserTypeModalVisible}
           onClose={() => setIsUserTypeModalVisible(false)}

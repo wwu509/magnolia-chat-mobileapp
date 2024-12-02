@@ -20,7 +20,7 @@ export const getMessageFormat = (
         accountSid: chatMesaage?.accountSid || '',
         attributes: null,
         author: user?.userName,
-        body: '',
+        body: mediaFile?.uri ? null : '',
         conversation: {
             accountSid: chatMesaage?.conversation?.accountSid || '',
             chatServiceSid: chatMesaage?.conversation?.chatServiceSid || '',
@@ -39,10 +39,25 @@ export const getMessageFormat = (
         dateCreated: currentDate,
         dateUpdated: currentDate,
         index: 9,
+        isTwilioGeneratedMessage: true,
         media: [{ ContentType: mediaFile?.mimeType }],
-        mediaUrls: [mediaFile?.uri],
+        mediaUrls: mediaFile?.uri,
         messageSid: chatMesaage?.messageSid || '',
         participantSid: chatMesaage?.participantSid || '',
+        smsClient: null,
+        customer_id: null,
+        client: null,
+        user: {
+            id: user?.id,
+            userName: user?.userName,
+            email: user?.email,
+            firstName: user?.first_name,
+            lastName: user?.last_name,
+            role: {
+                id: user?.userRolePermissions?.[0]?.role?.id,
+                name: user?.userRolePermissions?.[0]?.role?.name
+            }
+        }
     };
 };
 
