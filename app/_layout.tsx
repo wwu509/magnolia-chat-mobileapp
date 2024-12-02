@@ -8,8 +8,10 @@ import {RootSiblingParent} from 'react-native-root-siblings';
 import * as SplashScreen from 'expo-splash-screen';
 import {ThemeProvider} from './components/theme-context';
 import i18n, {isRTL, setInitialLanguage} from './utils/i18n';
+import {injectStore} from './utils/storeDispatch';
 
 const queryClient = new QueryClient();
+injectStore(store);
 SplashScreen.preventAutoHideAsync();
 
 NativeWindStyleSheet.setOutput({

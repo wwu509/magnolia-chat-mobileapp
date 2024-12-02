@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect} from 'react';
-import {Pressable, View} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {StatusBar, View} from 'react-native';
 import {Href, Link} from 'expo-router';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useForm, Control} from 'react-hook-form';
@@ -16,7 +16,7 @@ import {
   setConfidentialData,
 } from '@/app/utils/secure-storage';
 import {useTheme} from '@/app/components/theme-context';
-import {navigateBack, navigateTo} from '@/app/helper/navigation';
+import {navigateTo, replaceRoute} from '@/app/helper/navigation';
 import axiosConfig from '@/app/helper/axios-config';
 import {setAccessToken} from '@/app/utils/access-token-data';
 import {AUTH_API} from '@/app/constants/api-routes';
@@ -25,15 +25,20 @@ import CustomText from '@/app/components/custom-text';
 import Translate from '@/app/components/translate';
 import i18n from '@/app/utils/i18n';
 import {TEST_IDS} from '@/app/constants/test-ids/login-screen';
-import {LOGIN_TYPES} from '@/app/constants';
-import BackSvg from '@/assets/svgs/arrow-left-svg';
+import {APIAxiosError, LOGIN_TYPES} from '@/app/constants';
 import EmailSvg from '@/assets/svgs/sms-svg';
 import LockSvg from '@/assets/svgs/password-lock-svg';
+import showToast from '@/app/components/toast';
+import AppCustomLogo from '@/app/components/app-custom-logo';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import messaging from '@react-native-firebase/messaging';
+import {styled} from 'nativewind';
 
 type FormDataProps = {
   email: string;
   password: string;
   rememberMe?: boolean;
+  fcmToken?: string | null;
 };
 
 type AuthResponse = {
@@ -44,20 +49,50 @@ type AuthResponse = {
     is2FAEnabled: boolean;
   };
   type?: string;
+  fcmToken: string;
 };
 
 const schema = yup.object().shape({
   email: yup.string().email('invalid_email').required('email_required'),
   password: yup
     .string()
-    .min(6, 'password_min_length')
+    .min(4, 'password_min_length')
     .required('password_required'),
   rememberMe: yup.boolean(),
 });
 
+const StyledKeyboardAwareScrollView = styled(KeyboardAwareScrollView);
+
 const Login: React.FC = () => {
   const {activeTheme} = useTheme();
   const ns = i18n.language;
+
+  const [fcmToken, setFcmToken] = useState<string | undefined>('');
+
+  const getFcmPushToken = async () => {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    if (enabled) {
+      const fcmToken = await messaging().getToken();
+      setFcmToken(fcmToken);
+    } else {
+      console.log('Authorization status:', authStatus);
+    }
+  };
+
+  useEffect(() => {
+    const fetchFcmToken = async () => {
+      try {
+        await getFcmPushToken();
+      } catch (error) {
+        console.error('Error fetching FCM token:', error);
+      }
+    };
+
+    fetchFcmToken();
+  }, []);
 
   const {
     watch,
@@ -93,10 +128,15 @@ const Login: React.FC = () => {
   }, [setValue]);
 
   const authenticateUser = useCallback(
-    async ({email, password}: FormDataProps): Promise<AuthResponse> => {
+    async ({
+      email,
+      password,
+      fcmToken,
+    }: FormDataProps & {fcmToken: string}): Promise<AuthResponse> => {
       const {data} = await axiosConfig.post<AuthResponse>(AUTH_API.LOGIN, {
         email,
         password,
+        fcmToken,
       });
       return data;
     },
@@ -109,95 +149,103 @@ const Login: React.FC = () => {
       onSuccess: async (data, formData) => {
         await loginSuccess(data, formData);
       },
-      onError: error => {
-        console.warn(JSON.stringify(error, null, 2));
+      onError: (error: APIAxiosError) => {
+        showToast(error?.response?.data?.message || error?.message || '');
       },
     });
 
   const onSubmit = useCallback(
     (formData: FormDataProps) => {
-      UserLogin.mutate(formData);
+      UserLogin.mutate({...formData, fcmToken: fcmToken});
     },
     [UserLogin],
   );
 
+  const onRegisterPressHandle = () => {
+    navigateTo(NAVIGATION_ROUTES.REGISTER);
+  };
+
   return (
     <SafeAreaView className={loginScreenStyles.container}>
-      <Pressable
-        testID={TEST_IDS.BUTTON.BACK_ICON}
-        accessibilityLabel={TEST_IDS.BUTTON.BACK_ICON}
-        onPress={navigateBack}
-        className="w-[100%] h-[3%]">
-        <BackSvg />
-      </Pressable>
-      <View className={globalStyle.responsiveStyle}>
-        <CustomText
-          title={'welcome_back'}
-          classname={`${loginScreenStyles.title} ${activeTheme.text}`}
-          testID={TEST_IDS.TEXT.WELCOME_BACK}
-        />
-        <CustomText
-          title={'login_to_account'}
-          classname={`${loginScreenStyles.description} ${activeTheme.label}`}
-          testID={TEST_IDS.TEXT.LOGIN_TO_ACCOUNT}
-        />
-        <CustomFormField
-          control={control as unknown as Control}
-          name="email"
-          label="email"
-          placeholder="enter_your_email"
-          inputMode="email"
-          errors={errors}
-          autoCapitalize="none"
-          customIcon={EmailSvg}
-          labelID={TEST_IDS.TEXT.ENTER_YOUR_EMAIL}
-          errorID={TEST_IDS.ERROR.ENTER_YOUR_EMAIL}
-          inputID={TEST_IDS.INPUT.ENTER_YOUR_EMAIL}
-        />
-
-        <CustomFormField
-          control={control as unknown as Control}
-          name="password"
-          label="password"
-          placeholder="enter_your_password"
-          secureTextEntry
-          errors={errors}
-          autoCapitalize="none"
-          customIcon={LockSvg}
-          labelID={TEST_IDS.TEXT.ENTER_YOUR_PASSWORD}
-          errorID={TEST_IDS.ERROR.ENTER_YOUR_PASSWORD}
-          inputID={TEST_IDS.INPUT.ENTER_YOUR_PASSWORD}
-        />
-        <View className={'w-full flex-row justify-between items-center mt-5'}>
-          <CustomCheckbox
-            control={control as unknown as Control}
-            name="rememberMe"
-            label="remember_me"
-            labelID={TEST_IDS.TEXT.REMEMBER_ME}
-            errorID={TEST_IDS.ERROR.REMEMBER_ME}
+      <StatusBar barStyle="light-content" backgroundColor="black" />
+      <StyledKeyboardAwareScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{height: '100%'}}
+        className={'w-full'}
+        enableOnAndroid>
+        <View className={globalStyle.responsiveStyle}>
+          <AppCustomLogo
+            text={'magnolia_jewellers_login'}
+            testID={TEST_IDS.TEXT.WELCOME_BACK}
           />
-          <View className={loginScreenStyles.forgotPassword}>
-            <Link
-              testID={TEST_IDS.TEXT.FORGOT_PASSWORD}
-              accessibilityLabel={TEST_IDS.TEXT.FORGOT_PASSWORD}
-              href={
-                NAVIGATION_ROUTES.FORGOT_PASSWORD_OPTIONS as Href<
-                  string | object
-                >
-              }
-              className={`text-sm font-medium ${activeTheme.linkContainer}`}>
-              <Translate value={'forgot_password'} ns={ns} />
-            </Link>
+          <CustomFormField
+            control={control as unknown as Control}
+            name="email"
+            label="email"
+            placeholder="enter_your_email"
+            inputMode="email"
+            errors={errors}
+            autoCapitalize="none"
+            customIcon={EmailSvg}
+            labelID={TEST_IDS.TEXT.ENTER_YOUR_EMAIL}
+            errorID={TEST_IDS.ERROR.ENTER_YOUR_EMAIL}
+            inputID={TEST_IDS.INPUT.ENTER_YOUR_EMAIL}
+          />
+          <CustomFormField
+            control={control as unknown as Control}
+            name="password"
+            label="password"
+            placeholder="enter_your_password"
+            secureTextEntry
+            errors={errors}
+            autoCapitalize="none"
+            customIcon={LockSvg}
+            labelID={TEST_IDS.TEXT.ENTER_YOUR_PASSWORD}
+            errorID={TEST_IDS.ERROR.ENTER_YOUR_PASSWORD}
+            inputID={TEST_IDS.INPUT.ENTER_YOUR_PASSWORD}
+          />
+          <View className={'w-full flex-row justify-between items-center mt-5'}>
+            <CustomCheckbox
+              control={control as unknown as Control}
+              name="rememberMe"
+              label="remember_me"
+              labelID={TEST_IDS.TEXT.REMEMBER_ME}
+              errorID={TEST_IDS.ERROR.REMEMBER_ME}
+            />
+            <View className={loginScreenStyles.forgotPassword}>
+              <Link
+                testID={TEST_IDS.TEXT.FORGOT_PASSWORD}
+                accessibilityLabel={TEST_IDS.TEXT.FORGOT_PASSWORD}
+                href={
+                  NAVIGATION_ROUTES.FORGOT_PASSWORD as Href<string | object>
+                }
+                className={`text-sm font-medium ${activeTheme.linkContainer}`}>
+                <Translate value={'forgot_password'} ns={ns} />
+              </Link>
+            </View>
+          </View>
+          <CustomButton
+            title={'login'}
+            onPress={handleSubmit(onSubmit)}
+            disabled={!email || !password}
+            loading={UserLogin?.isPending}
+            testID={TEST_IDS.BUTTON.LOGIN}
+          />
+          <View className="h-[25%] w-full flex-row items-center justify-center mt-4">
+            <CustomText
+              title={'want_to_create_an_account'}
+              classname={`text-sm ${activeTheme.checkboxText}`}
+              testID={TEST_IDS.TEXT.WANT_TO_CREATE_ACCOUNT}
+            />
+            <CustomText
+              title={'signup'}
+              onPress={onRegisterPressHandle}
+              classname={`font-medium ${activeTheme.linkContainer}`}
+              testID={TEST_IDS.TEXT.SIGN_UP}
+            />
           </View>
         </View>
-        <CustomButton
-          title={'login'}
-          onPress={handleSubmit(onSubmit)}
-          disabled={!email || !password}
-          loading={UserLogin?.isPending}
-          testID={TEST_IDS.BUTTON.LOGIN}
-        />
-      </View>
+      </StyledKeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
@@ -232,6 +280,6 @@ export const loginSuccess = async (
     });
   } else {
     await setAccessToken(tokenData);
-    navigateTo(NAVIGATION_ROUTES.HOME);
+    replaceRoute(NAVIGATION_ROUTES.HOME as Href<string | object>);
   }
 };

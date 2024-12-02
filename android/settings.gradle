@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'lelia-app'
+rootProject.name = 'Magnolia Jewellers'
 
 dependencyResolutionManagement {
   versionCatalogs {

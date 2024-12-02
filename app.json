@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "lelia-app",
-    "slug": "lelia-app",
+    "name": "Magnolia Jewellers",
+    "slug": "magnolia-jewellers",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,16 +16,27 @@
       "config": {
         "usesNonExemptEncryption": false
       },
+      "entitlements": {
+        "aps-environment": "production"
+      },
       "supportsTablet": true,
-      "bundleIdentifier": "com.lelia"
+      "bundleIdentifier": "com.magnolia.jewellers",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "buildNumber": "20"
     },
     "android": {
-      "permissions": ["com.google.android.c2dm.permission.RECEIVE"],
+      "permissions": [
+        "com.google.android.c2dm.permission.RECEIVE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.lelia"
+      "package": "com.magnolia.jewellers",
+      "googleServicesFile": "./google-services.json",
+      "versionCode": "20"
     },
     "web": {
       "bundler": "metro",
@@ -35,15 +46,20 @@
     "plugins": [
       ["expo-router"],
       [
-        "expo-notifications",
+        "expo-asset",
         {
-          "icon": "./assets/icons/notification_icon.png",
-          "color": "#ffffff",
-          "defaultChannel": "default",
-          "sounds": [
-            "./assets/sounds/notification_sound.wav",
-            "./assets/sounds/notification_sound1.wav"
+          "assets": [
+            "./assets/images/login_logo.png",
+            "./assets/images/home_logo.png",
+            "./assets/images/user_default.jpg",
+            "./assets/images/group_default.png"
           ]
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": ["./assets/fonts/GreatVibes-Regular.ttf"]
         }
       ],
       ["expo-secure-store"],
@@ -53,7 +69,29 @@
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
         }
-      ]
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ],
+      ["@react-native-firebase/app"],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
+        }
+      ],
+      ["react-native-compressor"]
     ],
     "experiments": {
       "typedRoutes": true

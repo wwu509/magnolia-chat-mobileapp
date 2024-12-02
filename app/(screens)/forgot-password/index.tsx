@@ -11,14 +11,14 @@ import globalStyle from '@/app/styles/global-style';
 import {useMutation, UseMutationResult} from '@tanstack/react-query';
 import axiosConfig from '@/app/helper/axios-config';
 import {navigateBack, navigateTo} from '@/app/helper/navigation';
-import {useTheme} from '@/app/components/theme-context';
 import {AUTH_API} from '@/app/constants/api-routes';
 import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
-import CustomText from '@/app/components/custom-text';
 import {TEST_IDS} from '@/app/constants/test-ids/forgot-password-screen';
 import {LOGIN_TYPES} from '@/app/constants';
 import BackSvg from '@/assets/svgs/arrow-left-svg';
 import EmailSvg from '@/assets/svgs/sms-svg';
+import showToast from '@/app/components/toast';
+import AppCustomLogo from '@/app/components/app-custom-logo';
 
 type ForgotPasswordFormData = {
   email: string;
@@ -42,8 +42,6 @@ type ForgotPasswordAxiosError = {
 };
 
 const ForgotPassword: React.FC = () => {
-  const {activeTheme} = useTheme();
-
   const {
     watch,
     control,
@@ -85,6 +83,7 @@ const ForgotPassword: React.FC = () => {
     },
     onError: (error: ForgotPasswordAxiosError) => {
       console.warn('error: ', JSON.stringify(error?.response?.data, null, 2));
+      showToast(error?.response?.data?.message as string);
     },
   });
 
@@ -105,10 +104,9 @@ const ForgotPassword: React.FC = () => {
         <BackSvg />
       </Pressable>
       <View className={globalStyle.responsiveStyle}>
-        <CustomText
-          title={'forgot_password'}
-          classname={`${forgotPasswordStyles.textStyle} ${activeTheme.text}`}
-          testID={TEST_IDS.ERROR.ENTER_YOUR_EMAIL}
+        <AppCustomLogo
+          text={'magnolia_jewellers_forgot_password'}
+          testID={TEST_IDS.TEXT.FORGOT_PASSWORD}
         />
         <CustomFormField
           control={control as unknown as Control}

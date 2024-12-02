@@ -1,10 +1,35 @@
 export const AUTH_API = {
   LOGIN: 'auth/login',
+  REGISTER: 'auth/register',
   ME: 'auth/me',
   OTP_VERIFICATION: 'auth/verify-otp/',
-  OTP_RESEND: '/api/auth/resend-otp/',
-  FORGOT_PASSWORD: 'auth/forgot-password-with-otp',
-  RESET_PASSWORD: 'auth/reset-password-with-otp',
+  OTP_RESEND: 'auth/resend-otp/',
+  FORGOT_PASSWORD: 'auth/forgot-password-otp',
+  RESET_PASSWORD: 'auth/reset-password-otp',
+  CHANGE_PASSWORD: 'auth/change-password',
   LOGOUT: 'auth/logout',
   REFRESH_TOKEN: 'auth/refresh',
+  MUTE_NOTIFICATION: 'users/mute-notifications',
+};
+
+export const CHAT_API = {
+  CHAT_TOKEN: 'create-chat-token',
+  GET_CHAT_LIST: 'conversations/all',
+  SEND_CHAT_MESSAGE: 'chat/send-chat-message',
+  CREATE_CHAT: 'conversations',
+  GET_CHAT_MESSAGES: 'conversations/messages/',
+  ADD_USER_TO_CHAT: 'conversations/join/participant/',
+  CREATE_GROUP: 'conversations/group',
+  MARK_AS_IMPORTANT: 'conversations/importance/',
+  CHAT_INFO: 'conversations/detail/',
+  CHAT_INFO_AGENTS: 'conversations/one-to-one/agents/',
+  GROUP_INFO: 'conversations/group/',
+  ADD_CUSTOMER_TO_GROUP: 'conversations/group/join/phone-number/',
+  ADD_STAFF_TO_GROUP: 'conversations/group/join/identity/',
+  REMOVE_USER: 'conversations/participants/',
+  GET_STAFF_MEMBERS: 'conversations/available-identities/',
+  MARK_AS_UNREAD: 'conversations/unread/',
+  CHAT_USER_UPDATE: 'conversation-customers',
+  CHAT_MUTE_USER: 'user/mute-user-in-conversation',
+  TWILIO_UPLOAD_MEDIA: 'twilio-message/messages/media'
 };

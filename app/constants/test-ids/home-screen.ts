@@ -21,6 +21,8 @@ export const TEST_IDS = {
     LOGIN_USER_NAME: 'home:login_user_name_txt',
     HELLO_GOOD_MORNING: 'home:hello_good_morning_txt',
     PLUS: 'home:plus_txt',
+    ENTER_YOUR_NAME: 'home:enter_your_name_txt',
+    ENTER_YOUR_MESSAGE: 'home:enter_your_message_txt',
   },
   BUTTON: {
     CHECK_IN_CHECK_OUT: 'home:check_in_check_out_btn',
@@ -28,6 +30,14 @@ export const TEST_IDS = {
     ABSENCE: 'home:absence_btn',
     TIME_OFF: 'home:time_off_btn',
     APPROVAL: 'home:approval_btn',
+    SUBMIT: 'home:submit_btn',
+    ADD_CHAT: 'home:add_chat_btn',
+    ADD_GROUP: 'home:add_group_btn',
+    PLUS: 'home:plus_btn',
+  },
+  INPUT: {
+    ENTER_YOUR_NAME: 'home:enter_your_name_input',
+    ENTER_YOUR_MESSAGE: 'home:enter_your_message_input',
   },
   IMAGE: {
     LOGIN_USER_PROFILE_PICTURE: 'home:profile_picture_img',
@@ -36,5 +46,10 @@ export const TEST_IDS = {
     ABSENCE: 'home:absence_btn',
     TIME_OFF: 'home:time_off_btn',
     APPROVAL: 'home:approval_btn',
+  },
+  ERROR: {
+    ENTER_YOUR_NAME: 'home:enter_your_name_error',
+    ENTER_YOUR_MESSAGE: 'home:enter_your_message_error',
+    ENTER_PHONE_NUMBER: 'home:enter_phone_number_error',
   },
 };
