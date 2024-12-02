@@ -2,11 +2,9 @@ import React from 'react';
 import {View, Text, Image, Pressable} from 'react-native';
 import moment from 'moment';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
-
 import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
 import {navigateTo} from '@/app/helper/navigation';
 import {Conversation} from '@/app/store/chat-listing-slice';
-
 import UserDefault from '@/assets/images/user_default.jpg';
 
 const MessageItem: React.FC<Conversation> = ({
@@ -14,13 +12,19 @@ const MessageItem: React.FC<Conversation> = ({
   friendlyName,
   latestMessage,
   attributes,
+  conversationType,
+  conversationCustomers,
 }) => {
+  let customerName =
+    conversationType === 'one-to-one' && conversationCustomers?.[0]?.first_name
+      ? conversationCustomers[0]?.first_name
+      : friendlyName;
   return (
     <Pressable
       className="flex flex-row item-center mt-4 w-full border-b border-gray-300 pb-4"
       onPress={() =>
         navigateTo(NAVIGATION_ROUTES.CHAT_MESSAGES, {
-          name: friendlyName,
+          name: customerName,
           id: conversationSid,
           important: `${attributes?.important}`,
         })
@@ -35,7 +39,7 @@ const MessageItem: React.FC<Conversation> = ({
         </View>
         <View className="w-[82%]">
           <Text className="font-medium text-base text-black/80">
-            {friendlyName}
+            {customerName}
           </Text>
           {!latestMessage?.media ? (
             <Text className="text-base text-black/50" numberOfLines={1}>

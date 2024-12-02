@@ -1,4 +1,4 @@
-import {View, TextInput, Pressable} from 'react-native';
+import {View, TextInput, Pressable, Keyboard} from 'react-native';
 import React, {useState, useRef, useCallback} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useLocalSearchParams} from 'expo-router';
@@ -48,7 +48,9 @@ const OTPScreen: React.FC = () => {
         const newOtp = [...otp];
         newOtp[index] = text;
         setOtp(newOtp);
-        if (text && index < otp.length - 1) {
+        if (text && index === otp.length - 1) {
+          Keyboard.dismiss();
+        } else if (text && index < otp.length - 1) {
           inputRefs.current[index + 1]?.focus();
         }
       }

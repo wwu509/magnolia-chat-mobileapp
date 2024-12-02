@@ -9,6 +9,8 @@ export type ConversationRecord = {
     conversationSid?: string;
     conversationFriendlyName: string;
     conversationUserName?: string;
+    firstName?: string;
+    lastName?: string;
 };
 
 export type ConversationResponse = {

@@ -6,6 +6,7 @@ import {
   FlatList,
   ActivityIndicator,
   Keyboard,
+  RefreshControl,
 } from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {useMutation, UseMutationResult, useQuery} from '@tanstack/react-query';
@@ -29,7 +30,8 @@ import {APIAxiosError} from '@/app/constants';
 import {useFocusEffect} from 'expo-router';
 
 type NewChatParams = {
-  name: string;
+  firstName: string;
+  lastName: string;
   userName?: string;
   phone?: string;
   message?: string;
@@ -57,7 +59,11 @@ const Home = () => {
     return data;
   }, []);
 
-  const {data: userData, isLoading: userDataLoading} = useQuery<User>({
+  const {
+    data: userData,
+    isLoading: userDataLoading,
+    refetch,
+  } = useQuery<User>({
     queryKey: ['aboutMe'],
     queryFn: getUserDetails,
   });
@@ -70,10 +76,20 @@ const Home = () => {
   const newChat = useCallback(
     async (
       params: NewChatParams,
-    ): Promise<{message: string; conversationSid: string; name: string}> => {
+    ): Promise<{
+      message: string;
+      conversationSid: string;
+      firstName: string;
+      lastName: string;
+    }> => {
       const formData = new FormData();
       formData.append('file', params?.media);
-      formData.append('friendlyName', params?.name as string);
+      formData.append('first_name', params?.firstName as string);
+      formData.append(
+        'friendlyName',
+        `${params?.firstName} ${params?.lastName}` as string,
+      );
+      formData.append('last_name', params?.lastName as string);
       formData.append(
         'uniqueName',
         `${params?.userName}-${params?.phone}` as string,
@@ -92,7 +108,7 @@ const Home = () => {
       });
       const newData = {
         ...data,
-        name: params?.name || '',
+        name: params?.firstName || '',
       };
       return newData;
     },
@@ -125,7 +141,7 @@ const Home = () => {
 
   useEffect(() => {
     if (chatToken) {
-      initializeTwilioClient(chatToken, dispatch);
+      initializeTwilioClient(chatToken, dispatch, queryClient);
     }
   }, [chatToken, dispatch]);
 
@@ -144,10 +160,17 @@ const Home = () => {
   };
 
   const handleChatSubmit = useCallback(
-    (name: string, phone: string, message: string, media: any) => {
+    (
+      firstName: string,
+      lastName: string,
+      phone: string,
+      message: string,
+      media: any,
+    ) => {
       Keyboard.dismiss();
       NewChatAPIMutate.mutate({
-        name,
+        firstName,
+        lastName,
         phone,
         message,
         media,
@@ -202,6 +225,9 @@ const Home = () => {
               index.toString()
             }
             contentContainerStyle={{paddingHorizontal: 20}}
+            refreshControl={
+              <RefreshControl size={1} onRefresh={refetch} refreshing={false} />
+            }
           />
         )}
         <FloatingButton

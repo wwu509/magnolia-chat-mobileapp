@@ -8,6 +8,8 @@
   "camera_permission": "We need your permission to show the camera",
   "camera_permission_denied": "Permission to access location was denied. Please grant location access to proceed.",
   "enter_your_name": "Enter your name",
+  "enter_your_first_name": "Enter first name",
+  "enter_your_last_name": "Enter last name",
   "enter_your_username": "Enter your user name",
   "enter_your_email": "Enter your email",
   "otp": "OTP",
@@ -71,5 +73,12 @@
   "something_went_wrong": "Something went wrong. Please try again later.",
   "mute_notification": "Mute Notification",
   "mute_notification_success": "Mute notification successfully",
-  "unmute_notification_success": "Un-Mute notification successfully"
+  "unmute_notification_success": "Un-Mute notification successfully",
+  "update_user_success": "User updated successfully",
+  "update_user_failure": "User updated failure",
+  "user_muted_success": "User muted successfully",
+  "user_muted_failure": "User muted failure",
+  "user_unmuted_success": "User un-muted successfully",
+  "user_unmuted_failure": "User un-muted failure",
+  "choose_from_contacts": "Choose from Contacts"
 }

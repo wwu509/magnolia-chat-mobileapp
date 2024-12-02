@@ -35,6 +35,8 @@ type UserRolePermission = {
 export type User = {
     id: number;
     name: string;
+    first_name: string;
+    last_name: string;
     email: string;
     userName: string;
     muteNotifications: boolean;
@@ -54,6 +56,7 @@ export type User = {
 export type GlobalState = {
     name: string;
     user: User | null;
+    isUpdateMessagesOn: boolean
 };
 
 // Root state type
@@ -64,6 +67,7 @@ export type RootState = {
 const initialState: GlobalState = {
     name: "global",
     user: null,
+    isUpdateMessagesOn: false
 };
 
 export const globalSlice = createSlice({
@@ -84,9 +88,12 @@ export const globalSlice = createSlice({
                 state.user.muteNotifications = action.payload;
             }
         },
+        setIsUpdateMessagesOn: (state, action: PayloadAction<boolean>) => {
+            state.isUpdateMessagesOn = action.payload;
+        },
     },
 });
 
-export const { setName, setUserData, clearUserData, muteUserNotifications } = globalSlice.actions;
+export const { setName, setUserData, clearUserData, muteUserNotifications, setIsUpdateMessagesOn } = globalSlice.actions;
 
 export default globalSlice.reducer;

@@ -1,5 +1,10 @@
 import React from 'react';
-import {View, TextInput, TouchableOpacity} from 'react-native';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import {Root, Content, Trigger, Item, ItemTitle} from 'zeego/dropdown-menu';
 import Entypo from '@expo/vector-icons/Entypo';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -12,12 +17,14 @@ const ChatInput = ({
   updateTyping,
   textMsg,
   FileMsg,
+  isMessageSend,
 }: {
   handleActions: ({value}: {value: string}) => void;
   sendMsg: () => void;
   updateTyping: (value: string) => void;
   textMsg: string;
   FileMsg: string | boolean;
+  isMessageSend: boolean;
 }) => {
   const {activeTheme} = useTheme();
 
@@ -89,14 +96,22 @@ const ChatInput = ({
           className="bg-white text-base w-[85%] text-black rounded-lg h-[40px] pl-2"
         />
       </View>
-      <MaterialCommunityIcons
-        color={activeTheme.linkContainer}
-        size={25}
-        className="mx-2.5 p-1.5"
-        style={{width: '6%', marginRight: 10}}
-        name={'send'}
-        onPress={() => sendMsg()}
-      />
+      {isMessageSend ? (
+        <ActivityIndicator
+          size={'small'}
+          color={'black'}
+          className="w-[6%] mr-[12]"
+        />
+      ) : (
+        <MaterialCommunityIcons
+          color={activeTheme.linkContainer}
+          size={25}
+          className="mx-2.5 p-1.5"
+          style={{width: '6%', marginRight: 10}}
+          name={'send'}
+          onPress={() => sendMsg()}
+        />
+      )}
     </View>
   );
 };

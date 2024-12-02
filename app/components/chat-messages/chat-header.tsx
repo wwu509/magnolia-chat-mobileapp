@@ -4,7 +4,6 @@ import Entypo from '@expo/vector-icons/Entypo';
 import React from 'react';
 import {translate} from '@/app/utils/i18n';
 import BackButtonWithTitle from '../header/back-button';
-import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
 
 type ChatHeaderProps = {
   name: string;
@@ -12,6 +11,7 @@ type ChatHeaderProps = {
   conversationType: 'group' | 'one-to-one' | '';
   isOwner: boolean;
   handleActions: (value: string) => void;
+  handleBackNavigation: () => void;
 };
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
@@ -20,6 +20,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   conversationType,
   isOwner,
   handleActions,
+  handleBackNavigation,
 }) => {
   const isGroup = conversationType === 'group';
   const importantTag = important ? 'mark_as_unimportant' : 'mark_as_important';
@@ -28,8 +29,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     <View className="flex-row bg-white items-center h-14 ">
       <View className="w-3/4">
         <BackButtonWithTitle
-          navigateToPage={NAVIGATION_ROUTES.HOME}
           title={name ?? 'Anonymous Name'}
+          backNavigate={handleBackNavigation}
         />
       </View>
       <View className="w-1/4 bg-white flex-row-reverse	">

@@ -10,7 +10,7 @@ import {
   Modal,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {MaterialCommunityIcons} from '@expo/vector-icons';
+import {FontAwesome6, MaterialCommunityIcons} from '@expo/vector-icons';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   useMutation,
@@ -145,38 +145,60 @@ const UserListScreen = () => {
     setUserToRemove(null);
   }, []);
 
-  const renderUserItem = ({item}: {item: Participant}) => (
-    <View className="flex-row items-center justify-between py-3 border-b border-gray-200">
-      <View className="flex-row items-center">
-        <Image source={UserDefault} className="w-10 h-10 rounded-full mr-3" />
-        <CustomText
-          title={item?.name || item?.phoneNumber}
-          classname="text-base"
-        />
-        {item?.isOwner && (
-          <View className="ml-2 flex-row items-center">
-            <MaterialCommunityIcons
-              name="shield-check"
-              size={20}
-              color="green"
-            />
-            <CustomText classname="text-sm text-gray-500 ml-1" title="Admin" />
+  const renderUserItem = ({item}: {item: Participant}) => {
+    const conversationUserName = `${item?.firstName} ${item?.lastName}`;
+    return (
+      <View className="flex-row items-center justify-between py-3 border-b border-gray-200">
+        <View className="flex-row items-center">
+          <Image source={UserDefault} className="w-10 h-10 rounded-full mr-3" />
+          <CustomText
+            title={
+              item?.firstName ? conversationUserName : `+1${item?.phoneNumber}`
+            }
+            classname="text-base"
+          />
+          {item?.isOwner && (
+            <View className="ml-2 flex-row items-center">
+              <MaterialCommunityIcons
+                name="shield-check"
+                size={20}
+                color="green"
+              />
+              <CustomText
+                classname="text-sm text-gray-500 ml-1"
+                title="Admin"
+              />
+            </View>
+          )}
+          {item?.role && (
+            <View className="ml-4">
+              <FontAwesome6
+                name={item?.role === 'super_admin' ? 'user-shield' : 'user-tie'}
+                size={18}
+              />
+            </View>
+          )}
+        </View>
+        {groupInfo?.mutedUsers?.includes(item?.userId || 0) && (
+          <View className="flex-row space-x-4 mr-4">
+            <MaterialCommunityIcons name="message-off" size={20} />
+            <CustomText classname="text-sm text-gray-500 ml-1" title="Muted" />
+          </View>
+        )}
+        {isAdmin && !item?.isOwner && item?.identity && (
+          <View className="flex-row space-x-2">
+            <Pressable
+              className="bg-red-500 rounded-full p-1"
+              onPress={() => {
+                showRemoveConfirmation(item?.identity, item?.name);
+              }}>
+              <MaterialCommunityIcons name="close" size={20} color="white" />
+            </Pressable>
           </View>
         )}
       </View>
-      {isAdmin && !item?.isOwner && item?.identity && (
-        <View className="flex-row space-x-2">
-          <Pressable
-            className="bg-red-500 rounded-full p-1"
-            onPress={() => {
-              showRemoveConfirmation(item?.identity, item?.name);
-            }}>
-            <MaterialCommunityIcons name="close" size={20} color="white" />
-          </Pressable>
-        </View>
-      )}
-    </View>
-  );
+    );
+  };
 
   const renderStaffHeaderComponent = () => {
     return (

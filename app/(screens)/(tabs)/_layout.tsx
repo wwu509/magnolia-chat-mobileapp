@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {Tabs} from 'expo-router';
 import {translate} from '@/app/utils/i18n';
 import {NAVIGATION_ROUTES} from '@/app/constants/navigation-routes';
@@ -6,112 +6,76 @@ import HomeSvg from '@/assets/svgs/home-svg';
 import ChatSvg from '@/assets/svgs/chat-svg';
 import SettingSvg from '@/assets/svgs/settings-svg';
 import messaging from '@react-native-firebase/messaging';
-import PushNotification from "react-native-push-notification";
-import PushNotificationIOS from "@react-native-community/push-notification-ios";
-
+import PushNotification from 'react-native-push-notification';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import {useQueryClient} from '@tanstack/react-query';
+import {Platform} from 'react-native';
 
 const TabNavigation: React.FC = () => {
+  const queryClient = useQueryClient();
 
   PushNotification.configure({
-  // (optional) Called when Token is generated (iOS and Android)
-  onRegister: function (token) {
-    console.log("TOKEN:", token);
-  },
+    onNotification: function (notification) {
+      notification.finish(PushNotificationIOS.FetchResult.NoData);
+    },
 
-  // (required) Called when a remote is received or opened, or local notification is opened
-  onNotification: function (notification) {
-    console.log("NOTIFICATION:", notification);
+    // IOS ONLY (optional): default: all - Permissions to register.
+    permissions: {
+      alert: true,
+      badge: true,
+      sound: true,
+    },
 
-    // process the notification
+    // Should the initial notification be popped automatically
+    // default: true
+    popInitialNotification: true,
 
-    // (required) Called when a remote is received or opened, or local notification is opened
-    notification.finish(PushNotificationIOS.FetchResult.NoData);
-  },
+    /**
+     * (optional) default: true
+     * - Specified if permissions (ios) and token (android and ios) will requested or not,
+     * - if not, you must call PushNotificationsHandler.requestPermissions() later
+     * - if you are not using remote notification or do not have Firebase installed, use this:
+     *     requestPermissions: Platform.OS === 'ios'
+     */
+    requestPermissions: true,
+  });
 
-  // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
-  onAction: function (notification) {
-    console.log("ACTION:", notification.action);
-    console.log("NOTIFICATION:", notification);
-
-    // process the action
-  },
-
-  // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
-  onRegistrationError: function(err) {
-    console.error(err.message, err);
-  },
-
-  // IOS ONLY (optional): default: all - Permissions to register.
-  permissions: {
-    alert: true,
-    badge: true,
-    sound: true,
-  },
-
-  // Should the initial notification be popped automatically
-  // default: true
-  popInitialNotification: true,
-
-  /**
-   * (optional) default: true
-   * - Specified if permissions (ios) and token (android and ios) will requested or not,
-   * - if not, you must call PushNotificationsHandler.requestPermissions() later
-   * - if you are not using remote notification or do not have Firebase installed, use this:
-   *     requestPermissions: Platform.OS === 'ios'
-   */
-  requestPermissions: true,
-});
-
-
-    useEffect(() => {
+  useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-
-PushNotification.localNotification({
-  /* Android Only Properties */
-  channelId: "test", // (required) channelId, if the channel doesn't exist, notification will not trigger.
-  ticker: "My Notification Ticker", // (optional)
-  showWhen: true, // (optional) default: true
-  color: "red", // (optional) default: system default
-  vibrate: true, // (optional) default: true
-  priority: "high", // (optional) set notification priority, default: high
-  visibility: "private", // (optional) set notification visibility, default: private
-  ignoreInForeground: false, // (optional) if true, the notification will not be visible when the app is in the foreground (useful for parity with how iOS notifications appear). should be used in combine with `com.dieam.reactnativepushnotification.notification_foreground` setting
-  shortcutId: "shortcut-id", // (optional) If this notification is duplicative of a Launcher shortcut, sets the id of the shortcut, in case the Launcher wants to hide the shortcut, default undefined
-  onlyAlertOnce: false, // (optional) alert will open only once with sound and notify, default: false
-  
-  when: null, // (optional) Add a timestamp (Unix timestamp value in milliseconds) pertaining to the notification (usually the time the event occurred). For apps targeting Build.VERSION_CODES.N and above, this time is not shown anymore by default and must be opted into by using `showWhen`, default: null.
-  usesChronometer: false, // (optional) Show the `when` field as a stopwatch. Instead of presenting `when` as a timestamp, the notification will show an automatically updating display of the minutes and seconds since when. Useful when showing an elapsed time (like an ongoing phone call), default: false.
-  timeoutAfter: null, // (optional) Specifies a duration in milliseconds after which this notification should be canceled, if it is not already canceled, default: null
-
-  messageId: "google:message_id", // (optional) added as `message_id` to intent extras so opening push notification can find data stored by @react-native-firebase/messaging module. 
-
-  actions: ["Yes", "No"], // (Android only) See the doc for notification actions to know more
-  invokeApp: true, // (optional) This enable click on actions to bring back the application to foreground or stay in background, default: true
-
-  /* iOS only properties */
-  category: "", // (optional) default: empty string
-  /* iOS and Android properties */
-  id: 0, // (optional) Valid unique 32 bit integer specified as string. default: Autogenerated Unique ID
-  title: "My Notification Title", // (optional)
-  message: "My Notification Message", // (required)
-  picture: "https://www.example.tld/picture.jpg", // (optional) Display an picture with the notification, alias of `bigPictureUrl` for Android. default: undefined
-  userInfo: {}, // (optional) default: {} (using null throws a JSON value '<null>' error)
-  playSound: false, // (optional) default: true
-  soundName: "default", // (optional) Sound to play when the notification is shown. Value of 'default' plays the default sound. It can be set to a custom sound such as 'android.resource://com.xyz/raw/my_sound'. It will look for the 'my_sound' audio file in 'res/raw' directory and play it. default: 'default' (default sound is played)
-  number: 10, // (optional) Valid 32 bit integer specified as string. default: none (Cannot be zero)
-  repeatType: "day", // (optional) Repeating interval. Check 'Repeating Notifications' section for more info.
-});
-
-      // SendLocalPushNotification(remoteMessage);
+      PushNotification.createChannel(
+        {
+          channelId: 'local-notification', // required
+          channelName: 'some channel name',
+          soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+          importance: 4, // (optional) default: 4. Int value of the Android notification importance
+          vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+        },
+        created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+      );
+      if (Platform.OS === 'ios') {
+        PushNotificationIOS.addNotificationRequest({
+          id: remoteMessage?.messageId || '',
+          title: remoteMessage?.notification?.title,
+          body: remoteMessage?.notification?.body,
+          sound: 'default',
+        });
+      } else {
+        PushNotification.localNotification({
+          channelId: 'local-notification',
+          autoCancel: true,
+          bigText: remoteMessage?.notification?.body,
+          title: remoteMessage?.notification?.title,
+          message: remoteMessage?.notification?.body || '',
+          vibrate: true,
+          vibration: 300,
+          playSound: true,
+          soundName: 'default',
+        });
+      }
     });
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('remoteMessage',remoteMessage);
-      
-      // SendLocalPushNotification(remoteMessage);
-    });
+
     return unsubscribe;
   }, []);
-
 
   return (
     <Tabs
@@ -134,6 +98,11 @@ PushNotification.localNotification({
             <HomeSvg fill={focused ? '#1e90ff' : 'gray'} />
           ),
         }}
+        listeners={() => ({
+          tabPress: () => {
+            queryClient.invalidateQueries({queryKey: ['aboutMe']});
+          },
+        })}
       />
       <Tabs.Screen
         name={`${NAVIGATION_ROUTES.CHAT}/index`}
@@ -143,6 +112,11 @@ PushNotification.localNotification({
             <ChatSvg fill={focused ? '#1e90ff' : 'gray'} />
           ),
         }}
+        listeners={() => ({
+          tabPress: () => {
+            queryClient.invalidateQueries({queryKey: ['chats']});
+          },
+        })}
       />
       <Tabs.Screen
         name={`${NAVIGATION_ROUTES.SETTING}/index`}

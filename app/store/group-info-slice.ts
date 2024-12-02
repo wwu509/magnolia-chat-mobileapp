@@ -15,6 +15,10 @@ export type Participant = {
     phoneNumber: string;
     messagingBinding: MessagingBinding | null;
     sid: string;
+    firstName: string;
+    lastName: string
+    userId?: number
+    role: string;
 };
 
 type Conversation = {
@@ -35,6 +39,7 @@ type Conversation = {
 export type GroupInfo = {
     conversation: Conversation;
     participants: Participant[];
+    mutedUsers: number[];
 };
 
 export type GroupInfoState = {

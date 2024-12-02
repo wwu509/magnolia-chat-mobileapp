@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {SafeAreaView, View} from 'react-native';
 import {useLocalSearchParams} from 'expo-router';
 import {
@@ -25,7 +25,7 @@ import {
   ConversationRecord,
   ConversationResponse,
   CreateGroupRootState,
-  setCustomersList,
+  // setCustomersList,
   setStaffList,
 } from '@/app/store/create-group-slice';
 import {capitalizeText} from '@/app/utils/helper-functions';
@@ -80,10 +80,18 @@ const UserSelectionScreen = () => {
     const {data} = await axiosConfig.get(endpoint);
     if (type === 'staff') {
       const reFormattedData = data?.records?.map(
-        (item: {id: string; name: string; userName: string}) => ({
+        (item: {
+          id: string;
+          name: string;
+          userName: string;
+          first_name: string;
+          last_name: string;
+        }) => ({
           participantSid: item?.id,
           conversationFriendlyName: item?.name,
           conversationUserName: item?.userName,
+          firstName: item?.first_name,
+          lastName: item?.last_name,
         }),
       );
       return {count: reFormattedData?.length, records: reFormattedData};
@@ -92,12 +100,6 @@ const UserSelectionScreen = () => {
     }
   };
 
-  const {data: customers, isLoading: isLoadingCustomers} =
-    useQuery<ConversationResponse>({
-      queryKey: ['customers'],
-      queryFn: () => fetchUsers('customers'),
-    });
-
   const {data: staff, isLoading: isLoadingStaff} =
     useQuery<ConversationResponse>({
       queryKey: ['staff'],
@@ -105,13 +107,10 @@ const UserSelectionScreen = () => {
     });
 
   useEffect(() => {
-    if (customers) {
-      dispatch(setCustomersList(customers?.records));
-    }
     if (staff) {
       dispatch(setStaffList(staff?.records));
     }
-  }, [customers, dispatch, staff]);
+  }, [dispatch, staff]);
 
   const handleUserSelect = (user: ConversationRecord) => {
     setSelectedUsers(prev =>
@@ -121,13 +120,16 @@ const UserSelectionScreen = () => {
     );
   };
 
-  const filteredUsers =
-    (activeTab === 'customers' ? customersList : staffList)?.filter(
-      (user: ConversationRecord) =>
-        user?.conversationFriendlyName
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase()),
-    ) || [];
+  const filteredUsers = useMemo(
+    () =>
+      (activeTab === 'customers' ? customersList : staffList)?.filter(
+        (user: ConversationRecord) =>
+          `${user?.firstName} ${user?.lastName} `
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()),
+      ) || [],
+    [activeTab, customersList, searchQuery, staffList],
+  );
 
   const handleSearch = ({search}: {search: string}) => {
     setSearchQuery(search);
@@ -216,9 +218,7 @@ const UserSelectionScreen = () => {
         users={filteredUsers}
         selectedUsers={selectedUsers}
         onUserSelect={handleUserSelect}
-        isLoading={
-          activeTab === 'customers' ? isLoadingCustomers : isLoadingStaff
-        }
+        isLoading={isLoadingStaff}
         activeTab={activeTab}
       />
       <CustomButton
